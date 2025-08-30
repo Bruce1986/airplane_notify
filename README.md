@@ -80,7 +80,8 @@
 
 * 地點 $P$：(lat, lon)；轉 ENU/UTM 等**局部平面座標**
 * 半徑 $R$：建議 **700 m**（後續現勘微調 500–1000 m）
-* 飛機狀態：位置 $A_0$、地速 $v$（m/s）、**真航向** $θ$、高度 $h$
+* 飛機狀態：位置 $A_0$、地速 $v$（m/s）、**真航向** $θ$（弧度）、高度 $h$
+* 航向單位向量：$\hat{d}(θ) = (\cos θ,\, \sin θ)$
 
 **短時外推**（近似直線、低延遲場景足夠）
 
@@ -235,14 +236,14 @@ $$
 
 * `latitude`, `longitude` → 位置
 * `velocity`（m/s）→ 地速
-* `true_track`（度）→ 真航向
+* `true_track`（度）→ 真航向（使用前請換算為弧度：`trackRad = true_track * Math.PI / 180`）
 * `baro_altitude`/`geo_altitude`（m）→ 高度
 * `callsign`, `icao24` → 追蹤標識
 
 ### 附錄 B：CPA 函式（TS 偽碼，貼進 Web Worker 可用）
 
 ```ts
-type Plane = { x: number; y: number; v: number; trackRad: number; h?: number; id: string };
+type Plane = { x: number; y: number; v: number; trackRad: number; h?: number; id: string }; // trackRad in radians
 type PassEvent = { eta: number; duration: number; dmin: number; level: '高'|'中'|'低'; ok: boolean };
 
 export function computePassEvent(P: {x:number;y:number}, R=700, Hmax=3000, p: Plane): PassEvent {
@@ -257,9 +258,9 @@ export function computePassEvent(P: {x:number;y:number}, R=700, Hmax=3000, p: Pl
   if (dmin > R || h > Hmax) return {eta: Infinity, duration: 0, dmin, level:'低', ok:false};
 
   // solve ||r0 + v t u|| = R
-  const a = p.v*p.v, b = 2*(rx*ux + ry*uy), c = rx*rx + ry*ry - R*R;
+  const a = p.v*p.v, b = 2 * p.v * (rx*ux + ry*uy), c = rx*rx + ry*ry - R*R;
   const disc = b*b - 4*a*c;
-  if (disc < 0) return {eta: 0, duration: 0, dmin, level:'低', ok:true};
+  if (disc < 0) return {eta: Infinity, duration: 0, dmin, level:'低', ok:false};
   const sqrt = Math.sqrt(disc);
   const t1 = (-b - sqrt)/(2*a), t2 = (-b + sqrt)/(2*a);
   const eta = Math.max(t1, 0);
