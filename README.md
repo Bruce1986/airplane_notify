@@ -244,18 +244,18 @@ $$
 
 ```ts
 type Plane = { x: number; y: number; v: number; trackRad: number; h?: number; id: string }; // trackRad in radians
-type PassEvent = { eta: number; duration: number; dmin: number; level: '高'|'中'|'低'; ok: boolean };
+type PassEvent = { eta: number; duration: number; dmin: number; level: '高'|'中'|'低' | null; ok: boolean };
 
 export function computePassEvent(P: {x:number;y:number}, R=700, Hmax=3000, p: Plane): PassEvent {
   const ux = Math.cos(p.trackRad), uy = Math.sin(p.trackRad);
   const rx = (p.x - P.x), ry = (p.y - P.y);
   const tCPA = -(rx*ux + ry*uy) / Math.max(p.v, 1e-3);
-  if (tCPA < 0) return {eta: Infinity, duration: 0, dmin: Infinity, level:'低', ok:false};
+  if (tCPA < 0) return {eta: Infinity, duration: 0, dmin: Infinity, level:null, ok:false};
 
   const dx = rx + p.v*tCPA*ux, dy = ry + p.v*tCPA*uy;
   const dmin = Math.hypot(dx, dy);
   const h = p.h; // 保留 undefined 的可能性，以便後續判斷
-  if (dmin > R || (h != null && h > Hmax)) return {eta: Infinity, duration: 0, dmin, level:'低', ok:false};
+  if (dmin > R || (h != null && h > Hmax)) return {eta: Infinity, duration: 0, dmin, level:null, ok:false};
 
   // solve ||r0 + v t u|| = R
   const safe_v = Math.max(p.v, 1e-3);
