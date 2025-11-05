@@ -254,8 +254,8 @@ export function computePassEvent(P: {x:number;y:number}, R=700, Hmax=3000, p: Pl
 
   const dx = rx + p.v*tCPA*ux, dy = ry + p.v*tCPA*uy;
   const dmin = Math.hypot(dx, dy);
-  const h = Math.max(0, p.h ?? 0);
-  if (dmin > R || h > Hmax) return {eta: Infinity, duration: 0, dmin, level:'低', ok:false};
+  const h = p.h; // 保留 undefined 的可能性，以便後續判斷
+  if (dmin > R || (h != null && h > Hmax)) return {eta: Infinity, duration: 0, dmin, level:'低', ok:false};
 
   // solve ||r0 + v t u|| = R
   const safe_v = Math.max(p.v, 1e-3);
@@ -265,8 +265,13 @@ export function computePassEvent(P: {x:number;y:number}, R=700, Hmax=3000, p: Pl
   const eta = Math.max(t1, 0);
   const duration = Math.max(0, t2 - Math.max(t1,0));
 
-  const dg = Math.hypot(dmin, h);
-  const level = dg < 1200 ? '高' : (dg < 2500 ? '中' : '低');
+  const dg = Math.hypot(dmin, h ?? 0);
+  let level = dg < 1200 ? '高' : (dg < 2500 ? '中' : '低');
+
+  // 若高度未知，則不應給出「高」噪音評級，以符合保守策略
+  if (h == null && level === '高') {
+    level = '中';
+  }
   return {eta, duration, dmin, level, ok:true};
 }
 ```
