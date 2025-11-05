@@ -258,7 +258,9 @@ export function computePassEvent(P: {x:number;y:number}, R=700, Hmax=3000, p: Pl
   if (dmin > R || h > Hmax) return {eta: Infinity, duration: 0, dmin, level:'低', ok:false};
 
   // solve ||r0 + v t u|| = R
-  const a = p.v*p.v, b = 2 * p.v * (rx*ux + ry*uy), c = rx*rx + ry*ry - R*R;
+  const a = p.v*p.v;
+  const b = 2 * p.v * (rx*ux + ry*uy);
+  const c = rx*rx + ry*ry - R*R;
   const disc = b*b - 4*a*c; // >= 0 since dmin ≤ R
   const sqrt = Math.sqrt(disc);
   const t1 = (-b - sqrt)/(2*a), t2 = (-b + sqrt)/(2*a);
