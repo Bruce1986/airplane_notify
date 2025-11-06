@@ -89,6 +89,9 @@
 - ✅ 完成：調整 computePassEvent 未通過事件的噪音等級定義
 - 📝 備註：依照 Gemini 建議將未通過事件的 level 設為 null
 
+### 🤖 AI 助手的日誌（2025/11/05）
+- ✅ 完成：修正 README 中 computePassEvent CPA 邏輯，避免忽略仍在半徑內的航機
+
 ---
 
 ## 📚 資源與文件連結

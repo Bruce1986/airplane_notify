@@ -96,7 +96,7 @@ $$
 $$
 
 $$
-t_{\text{CPA}} = -\frac{\vec{r}_0 \cdot \hat{u}}{v} \quad (\text{若 } t_{\text{CPA}} < 0 \text{，代表已錯過，忽略})
+t_{\text{CPA}} = -\frac{\vec{r}_0 \cdot \hat{u}}{v}
 $$
 
 **最近距離**
@@ -105,13 +105,15 @@ $$
 d_{\min} = \left\| \vec{r}_0 + v \cdot t_{\text{CPA}} \cdot \hat{u} \right\|
 $$
 
-若 $d_{\min} \le R$ 且 $h \le h_{\max}$（建議 **3000 m**），視為可能「壓頂」。
+若 $d_{\min} \le R$ 且 $h \le h_{\max}$（建議 **3000 m**），視為可能「壓頂」。若飛機已通過最近點但仍在半徑內，仍需繼續追蹤直到離開。
 
 **進出半徑時間（通過持續秒數）**
 解 $\left\| \vec{r}_0 + v t \hat{u} \right\| = R$，得兩根 $t_1 < t_{\text{CPA}} < t_2$
 
 * **ETA** = $\max(t_1, 0)$
 * **通過秒數** = $\max(0, t_2 - \max(t_1,0))$
+
+若整個通過事件（$t_1, t_2$）皆位於過去（$t_2 < 0$），才可忽略；否則即使 $t_{\text{CPA}} < 0$ 亦需計算剩餘停留時間。
 
 **噪音等級（啟發式）**
 
@@ -249,19 +251,23 @@ type PassEvent = { eta: number; duration: number; dmin: number; level: '高'|'�
 export function computePassEvent(P: {x:number;y:number}, R=700, Hmax=3000, p: Plane): PassEvent {
   const ux = Math.cos(p.trackRad), uy = Math.sin(p.trackRad);
   const rx = (p.x - P.x), ry = (p.y - P.y);
-  const tCPA = -(rx*ux + ry*uy) / Math.max(p.v, 1e-3);
-  if (tCPA < 0) return {eta: Infinity, duration: 0, dmin: Infinity, level:null, ok:false};
+  const safe_v = Math.max(p.v, 1e-3);
+  const tCPA = -(rx*ux + ry*uy) / safe_v;
 
-  const dx = rx + p.v*tCPA*ux, dy = ry + p.v*tCPA*uy;
+  const dx = rx + safe_v*tCPA*ux, dy = ry + safe_v*tCPA*uy;
   const dmin = Math.hypot(dx, dy);
   const h = p.h; // 保留 undefined 的可能性，以便後續判斷
   if (dmin > R || (h != null && h > Hmax)) return {eta: Infinity, duration: 0, dmin, level:null, ok:false};
 
   // solve ||r0 + v t u|| = R
-  const safe_v = Math.max(p.v, 1e-3);
   const time_to_border = Math.sqrt(Math.max(0, R*R - dmin*dmin)) / safe_v;
   const t1 = tCPA - time_to_border;
   const t2 = tCPA + time_to_border;
+
+  if (t2 < 0) {
+    return {eta: Infinity, duration: 0, dmin, level:null, ok:false};
+  }
+
   const eta = Math.max(t1, 0);
   const duration = Math.max(0, t2 - Math.max(t1,0));
 
