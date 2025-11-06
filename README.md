@@ -249,7 +249,7 @@ type Plane = { x: number; y: number; v: number; trackRad: number; h?: number; id
 type PassEvent = { eta: number; duration: number; dmin: number; level: '高'|'中'|'低' | null; ok: boolean };
 
 export function computePassEvent(P: {x:number;y:number}, R=700, Hmax=3000, p: Plane): PassEvent {
-  const ux = Math.cos(p.trackRad), uy = Math.sin(p.trackRad);
+  const ux = Math.sin(p.trackRad), uy = Math.cos(p.trackRad);
   const rx = (p.x - P.x), ry = (p.y - P.y);
   const safe_v = Math.max(p.v, 1e-3);
   const tCPA = -(rx*ux + ry*uy) / safe_v;
