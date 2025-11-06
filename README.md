@@ -272,12 +272,7 @@ export function computePassEvent(P: {x:number;y:number}, R=700, Hmax=3000, p: Pl
   const duration = Math.max(0, t2 - Math.max(t1,0));
 
   const dg = Math.hypot(dmin, h ?? 0);
-  let level = dg < 1200 ? '高' : (dg < 2500 ? '中' : '低');
-
-  // 若高度未知，則不應給出「高」噪音評級，以符合保守策略
-  if (h == null && level === '高') {
-    level = '中';
-  }
+  const level = (h != null && dg < 1200) ? '高' : (dg < 2500 ? '中' : '低');
   return {eta, duration, dmin, level, ok:true};
 }
 ```
