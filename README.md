@@ -220,7 +220,7 @@ $$
 * **技術棧**：Vite + React、Leaflet、TypeScript、Web Worker、（可選）Cloudflare Workers
 * **核心演算法**：CPA + 進出半徑解析（封裝為 `computePassEvent()`）
 * **查詢頻率**：預設 5–10 s；網路佳時可調降至 3–5 s
-* **預設參數**：R=700m、h\_max=3000m、連續命中次數=2、T–30/T–10 提醒
+* **預設參數**：R=700m、`h_max`=3000m、連續命中次數=2、T–30/T–10 提醒
 * **可設定**：地點座標、半徑 R、提醒門檻、輪詢頻率、夜間模式
 
 ---
