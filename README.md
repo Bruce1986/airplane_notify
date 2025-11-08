@@ -132,7 +132,7 @@ $$
 
 * 置頂大字：**下一架 T–01:32**（mm\:ss 倒數）
 * 次行：**預估通過 \~ 42 秒｜噪音：中｜信心：0.83**
-* 通過中狀態（eta === 0）：主標題切換為 **注意：飛機正在通過！**，次行更新為剩餘秒數倒數（例：**剩餘 18 秒｜噪音：高｜信心：0.83**），並啟用高對比背景提示現場人員抬頭注意
+* 通過中狀態（ETA === 0）：主標題切換為 **注意：飛機正在通過！**，次行更新為剩餘秒數倒數（例：**剩餘 18 秒｜噪音：高｜信心：0.83**），並啟用高對比背景提示現場人員抬頭注意
 * 地圖：地點圓圈（R）、航機即時點、預測線、CPA 點
 * 清單（未來 3–5 架）：ETA / 預估／剩餘通過秒數 / 呼號 / 估噪音
 * **演出模式**：
@@ -249,10 +249,13 @@ $$
 ### 附錄 B：CPA 函式（TS 偽碼，貼進 Web Worker 可用）
 
 ```ts
-type Plane = { x: number; y: number; v: number; trackRad: number; h?: number; id: string }; // trackRad in radians
+type Plane = { x: number; y: number; v: number | null; trackRad: number | null; h?: number; id: string }; // trackRad in radians
 type PassEvent = { eta: number; duration: number; dmin: number; level: '高'|'中'|'低' | null; ok: boolean };
 
 export function computePassEvent(P: {x:number;y:number}, p: Plane, R=700, Hmax=3000): PassEvent {
+  if (p.v == null || p.trackRad == null) {
+    return {eta: Infinity, duration: 0, dmin: Infinity, level:null, ok:false};
+  }
   const ux = Math.sin(p.trackRad), uy = Math.cos(p.trackRad);
   const rx = (p.x - P.x), ry = (p.y - P.y);
   const safe_v = Math.max(p.v, 1e-3);
