@@ -99,6 +99,8 @@
   - ✅ 完成：統一 README 術語，將「通過持續秒數」更新為「剩餘通過秒數」，以釐清其為剩餘時間。
   - ✅ 完成：依據 Gemini 建議統一 CPA 推導中的符號為 \hat{d}(θ)，移除多餘變數符號。
   - ✅ 完成：補上 README TL;DR 摘要、座標轉換實作方案，並統一輪詢頻率說明以呼應 OpenSky 匿名限制。
+  - ✅ 完成：建立 Vite + React + TypeScript Demo 面板，實作 computePassEvent 與單元測試。
+  - ✅ 完成：整理 README 對應的 W1/W2/W3 進度規劃並落地為 docs/development-plan.md。
 - **2025/11/05**
   - ✅ 完成：修正 README 中 computePassEvent CPA 邏輯，避免忽略仍在半徑內的航機
 - **2025/09/05**
