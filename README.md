@@ -82,7 +82,7 @@
 
 * 地點 $P$：(lat, lon)；轉 ENU/UTM 等**局部平面座標**（MVP 規劃使用 `proj4js` 建立 WGS84→本地東北天座標的轉換函式，或以 Cesium/`@math.gl/geospatial` 提供的 ENU 工具）
 * 半徑 $R$：建議 **700 m**（後續現勘微調 500–1000 m）
-* 飛機狀態：位置 $A_0$、地速 $v$（m/s）、**真航向** $θ$（弧度）、高度 $h$
+* 飛機狀態：位置 $A_0$、地速 $v$（m/s）、**真航向** $θ$（弧度）、高度 $h$（由 OpenSky `geo_altitude` 優先取得；若為 `null` 則回退 `baro_altitude`；兩者皆缺則令 $h$ 為未定值）
 * 初始相對位置向量：$\vec{r}_0 = A_0 - P$
 * 航向單位向量：$\hat{d}(θ) = (\sin θ,\, \cos θ)$
 
@@ -243,7 +243,7 @@ $$
 * `latitude`, `longitude` → 位置
 * `velocity`（m/s）→ 地速
 * `true_track`（度）→ 真航向（使用前請換算為弧度：`trackRad = true_track * Math.PI / 180`）
-* `baro_altitude`/`geo_altitude`（m）→ 高度
+* `baro_altitude`/`geo_altitude`（m）→ 高度（**優先**使用 `geo_altitude`；若為 `null` 則回退至 `baro_altitude`；兩者皆缺時，視為高度未知並沿用第 5 章的保守噪音策略）
 * `callsign`, `icao24` → 追蹤標識
 
 ### 附錄 B：CPA 函式（TS 偽碼，貼進 Web Worker 可用）
