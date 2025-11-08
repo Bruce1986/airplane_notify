@@ -253,6 +253,9 @@ type Plane = { x: number; y: number; v: number; trackRad: number; h?: number; id
 type PassEvent = { eta: number; duration: number; dmin: number; level: '高'|'中'|'低' | null; ok: boolean };
 
 export function computePassEvent(P: {x:number;y:number}, p: Plane, R=700, Hmax=3000): PassEvent {
+  if (p.v == null || p.trackRad == null) {
+    return {eta: Infinity, duration: 0, dmin: Infinity, level:null, ok:false};
+  }
   const ux = Math.sin(p.trackRad), uy = Math.cos(p.trackRad);
   const rx = (p.x - P.x), ry = (p.y - P.y);
   const safe_v = Math.max(p.v, 1e-3);
