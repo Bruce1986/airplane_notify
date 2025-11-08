@@ -15,17 +15,19 @@ export function computePassEvent(
   radius = site.radius,
   maxAltitude = site.maxAltitude
 ): PassEvent {
+  const createFailedEvent = (dmin: number = Infinity): PassEvent => ({
+    plane,
+    eta: Infinity,
+    duration: 0,
+    dmin,
+    level: null,
+    ok: false,
+    entersAt: Infinity,
+    exitsAt: Infinity
+  })
+
   if (plane.v == null || plane.trackRad == null) {
-    return {
-      plane,
-      eta: Infinity,
-      duration: 0,
-      dmin: Infinity,
-      level: null,
-      ok: false,
-      entersAt: Infinity,
-      exitsAt: Infinity
-    }
+    return createFailedEvent()
   }
 
   const ux = Math.sin(plane.trackRad)
@@ -41,16 +43,7 @@ export function computePassEvent(
 
   const altitude = plane.h ?? null
   if (dmin > radius || (altitude != null && altitude > maxAltitude)) {
-    return {
-      plane,
-      eta: Infinity,
-      duration: 0,
-      dmin,
-      level: null,
-      ok: false,
-      entersAt: Infinity,
-      exitsAt: Infinity
-    }
+    return createFailedEvent(dmin)
   }
 
   const underRadical = Math.max(0, radius * radius - dmin * dmin)
@@ -59,16 +52,7 @@ export function computePassEvent(
   const t2 = tCPA + timeToBorder
 
   if (t2 < 0) {
-    return {
-      plane,
-      eta: Infinity,
-      duration: 0,
-      dmin,
-      level: null,
-      ok: false,
-      entersAt: Infinity,
-      exitsAt: Infinity
-    }
+    return createFailedEvent(dmin)
   }
 
   const eta = Math.max(t1, 0)
