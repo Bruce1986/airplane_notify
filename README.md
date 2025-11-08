@@ -249,7 +249,7 @@ $$
 ### 附錄 B：CPA 函式（TS 偽碼，貼進 Web Worker 可用）
 
 ```ts
-type Plane = { x: number; y: number; v: number; trackRad: number; h?: number; id: string }; // trackRad in radians
+type Plane = { x: number; y: number; v: number | null; trackRad: number | null; h?: number; id: string }; // trackRad in radians
 type PassEvent = { eta: number; duration: number; dmin: number; level: '高'|'中'|'低' | null; ok: boolean };
 
 export function computePassEvent(P: {x:number;y:number}, p: Plane, R=700, Hmax=3000): PassEvent {
