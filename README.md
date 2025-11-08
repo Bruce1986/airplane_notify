@@ -92,23 +92,23 @@ $$
 **最近接近時間（CPA）**
 
 $$
-\vec{r}_0 = A_0 - P,\quad \hat{u} = \hat{d}(θ)
+\vec{r}_0 = A_0 - P
 $$
 
 $$
-t_{\text{CPA}} = -\frac{\vec{r}_0 \cdot \hat{u}}{v}
+t_{\text{CPA}} = -\frac{\vec{r}_0 \cdot \hat{d}(θ)}{v}
 $$
 
 **最近距離**
 
 $$
-d_{\min} = \left\| \vec{r}_0 + v \cdot t_{\text{CPA}} \cdot \hat{u} \right\|
+d_{\min} = \left\| \vec{r}_0 + v \cdot t_{\text{CPA}} \cdot \hat{d}(θ) \right\|
 $$
 
 若 $d_{\min} \le R$ 且 $h \le h_{\max}$（建議 **3000 m**），視為可能「壓頂」。若飛機已通過最近點但仍在半徑內，仍需繼續追蹤直到離開。
 
 **進出半徑時間（剩餘通過秒數）**
-解 $\left\| \vec{r}_0 + v t \hat{u} \right\| = R$，得兩根 $t_1 < t_{\text{CPA}} < t_2$
+解 $\left\| \vec{r}_0 + v t \hat{d}(θ) \right\| = R$，得兩根 $t_1 < t_{\text{CPA}} < t_2$
 
 * **ETA** = $\max(t_1, 0)$
 * **通過事件時長（duration）** = $\max(0, t_2 - \max(t_1,0))$
