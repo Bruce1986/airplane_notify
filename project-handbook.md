@@ -84,6 +84,9 @@
 
 ### 🤖 AI 助手的日誌
 
+- **2025/11/15**
+  - ✅ 完成：依 Gemini 建議補齊 React 相關規則、React Refresh 檢查與自動版本偵測設定，強化 ESLint 守備。
+  - ✅ 完成：調整噪音等級閾值為具名常數、清理未使用型別並改用穩定版 react-hooks plugin。
 - **2025/11/14**
   - ✅ 完成：將 computePassEvent 失敗事件輸出抽取為 helper，降低重複碼並呼應 Gemini 建議。
 - **2025/11/13**

@@ -1,11 +1,13 @@
 import type { NoiseLevel, ObservationSite, PassEvent, PlaneState } from './types'
 
 const EPS = 1e-6
+const NOISE_LEVEL_HIGH_THRESHOLD = 1200
+const NOISE_LEVEL_MEDIUM_THRESHOLD = 2500
 
 function calculateNoiseLevel(dg: number | null): NoiseLevel {
   if (dg == null) return null
-  if (dg < 1200) return '高'
-  if (dg < 2500) return '中'
+  if (dg < NOISE_LEVEL_HIGH_THRESHOLD) return '高'
+  if (dg < NOISE_LEVEL_MEDIUM_THRESHOLD) return '中'
   return '低'
 }
 
@@ -73,11 +75,6 @@ export function computePassEvent(
     entersAt,
     exitsAt
   }
-}
-
-export interface NormalizedStateVector {
-  plane: PlaneState
-  event: PassEvent
 }
 
 export interface StateVector {
