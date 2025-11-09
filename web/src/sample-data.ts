@@ -1,5 +1,4 @@
-import type { ObservationSite } from './lib/types'
-import type { StateVector } from './lib/geometry'
+import type { ObservationSite, StateVector } from './lib/types'
 
 export const demoSite: ObservationSite = {
   name: '圓山里演出現場',

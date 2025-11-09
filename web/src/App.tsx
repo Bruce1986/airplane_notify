@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import './App.css'
 import { computePassEvent, normalizeStateVector } from './lib/geometry'
-import type { ObservationSite } from './lib/types'
+import type { ObservationSite, PlaneState } from './lib/types'
 import { demoSite, sampleStateVectors } from './sample-data'
 
 function formatSeconds(value: number): string {
@@ -21,7 +21,7 @@ function useDemoPasses(site: ObservationSite) {
   return useMemo(() => {
     return sampleStateVectors
       .map((state) => normalizeStateVector(site, state))
-      .filter((plane): plane is NonNullable<typeof plane> => Boolean(plane))
+      .filter((plane): plane is PlaneState => plane !== null)
       .map((plane) => computePassEvent(site, plane))
       .filter((event) => event.ok)
       .sort((a, b) => a.eta - b.eta)
