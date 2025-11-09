@@ -1,4 +1,10 @@
-import type { NoiseLevel, ObservationSite, PassEvent, PlaneState } from './types'
+import type {
+  NoiseLevel,
+  ObservationSite,
+  PassEvent,
+  PlaneState,
+  StateVector
+} from './types'
 
 const EPS = 1e-6
 const NOISE_LEVEL_HIGH_THRESHOLD = 1200
@@ -77,17 +83,6 @@ export function computePassEvent(
     entersAt,
     exitsAt
   }
-}
-
-export interface StateVector {
-  icao24: string
-  callsign: string | null
-  latitude: number | null
-  longitude: number | null
-  geo_altitude: number | null
-  baro_altitude: number | null
-  velocity: number | null
-  true_track: number | null
 }
 
 export function normalizeStateVector(

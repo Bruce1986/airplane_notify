@@ -84,6 +84,9 @@
 
 ### 🤖 AI 助手的日誌
 
+- **2025/11/17**
+  - ✅ 完成：改寫 ESLint 扁平化設定，直接導入 React 與 React Hooks 推薦組態並保留熱更新檢查。
+  - ✅ 完成：集中 StateVector 型別至 types.ts 並調整匯入，呼應 Gemini 關於型別組織的建議。
 - **2025/11/16**
   - ✅ 完成：將 computePassEvent 失敗事件 helper 提升至模組層，避免重複宣告並符合 Gemini 建議。
   - ✅ 完成：補充 geodeticToEnu 投影近似的使用範圍，並收斂 toRadians 為檔案內部使用。

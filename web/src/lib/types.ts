@@ -29,3 +29,14 @@ export interface PassEvent {
   entersAt: number
   exitsAt: number
 }
+
+export interface StateVector {
+  icao24: string
+  callsign: string | null
+  latitude: number | null
+  longitude: number | null
+  geo_altitude: number | null
+  baro_altitude: number | null
+  velocity: number | null
+  true_track: number | null
+}
