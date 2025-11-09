@@ -84,6 +84,9 @@
 
 ### 🤖 AI 助手的日誌
 
+- **2025/11/16**
+  - ✅ 完成：將 computePassEvent 失敗事件 helper 提升至模組層，避免重複宣告並符合 Gemini 建議。
+  - ✅ 完成：補充 geodeticToEnu 投影近似的使用範圍，並收斂 toRadians 為檔案內部使用。
 - **2025/11/15**
   - ✅ 完成：依 Gemini 建議補齊 React 相關規則、React Refresh 檢查與自動版本偵測設定，強化 ESLint 守備。
   - ✅ 完成：調整噪音等級閾值為具名常數、清理未使用型別並改用穩定版 react-hooks plugin。

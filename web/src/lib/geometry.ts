@@ -4,6 +4,19 @@ const EPS = 1e-6
 const NOISE_LEVEL_HIGH_THRESHOLD = 1200
 const NOISE_LEVEL_MEDIUM_THRESHOLD = 2500
 
+function createFailedEvent(plane: PlaneState, dmin: number = Infinity): PassEvent {
+  return {
+    plane,
+    eta: Infinity,
+    duration: 0,
+    dmin,
+    level: null,
+    ok: false,
+    entersAt: Infinity,
+    exitsAt: Infinity
+  }
+}
+
 function calculateNoiseLevel(dg: number | null): NoiseLevel {
   if (dg == null) return null
   if (dg < NOISE_LEVEL_HIGH_THRESHOLD) return '高'
@@ -17,19 +30,8 @@ export function computePassEvent(
   radius = site.radius,
   maxAltitude = site.maxAltitude
 ): PassEvent {
-  const createFailedEvent = (dmin: number = Infinity): PassEvent => ({
-    plane,
-    eta: Infinity,
-    duration: 0,
-    dmin,
-    level: null,
-    ok: false,
-    entersAt: Infinity,
-    exitsAt: Infinity
-  })
-
   if (plane.v == null || plane.trackRad == null) {
-    return createFailedEvent()
+    return createFailedEvent(plane)
   }
 
   const ux = Math.sin(plane.trackRad)
@@ -45,7 +47,7 @@ export function computePassEvent(
 
   const altitude = plane.h ?? null
   if (dmin > radius || (altitude != null && altitude > maxAltitude)) {
-    return createFailedEvent(dmin)
+    return createFailedEvent(plane, dmin)
   }
 
   const underRadical = Math.max(0, radius * radius - dmin * dmin)
@@ -54,7 +56,7 @@ export function computePassEvent(
   const t2 = tCPA + timeToBorder
 
   if (t2 < 0) {
-    return createFailedEvent(dmin)
+    return createFailedEvent(plane, dmin)
   }
 
   const eta = Math.max(t1, 0)
@@ -107,6 +109,9 @@ export function normalizeStateVector(
 type GeodeticPoint = { latitude: number; longitude: number }
 
 export function geodeticToEnu(site: ObservationSite, point: GeodeticPoint) {
+  // NOTE: This uses an equirectangular projection that is sufficiently precise
+  // within the ~700 m operating radius of the MVP. For larger regions or
+  // high-precision needs, replace with a more exact geodetic conversion.
   const rEarth = 6378137
   const lat0 = toRadians(site.latitude)
   const lon0 = toRadians(site.longitude)
@@ -120,6 +125,6 @@ export function geodeticToEnu(site: ObservationSite, point: GeodeticPoint) {
   return { x, y }
 }
 
-export function toRadians(degrees: number): number {
+function toRadians(degrees: number): number {
   return (degrees * Math.PI) / 180
 }
