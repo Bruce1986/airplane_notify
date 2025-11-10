@@ -2,3 +2,4 @@ node_modules
 *.log
 web/node_modules
 web/dist
+web/.vite/

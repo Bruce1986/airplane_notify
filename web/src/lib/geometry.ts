@@ -30,12 +30,8 @@ function calculateNoiseLevel(dg: number | null): NoiseLevel {
   return '低'
 }
 
-export function computePassEvent(
-  site: ObservationSite,
-  plane: PlaneState,
-  radius = site.radius,
-  maxAltitude = site.maxAltitude
-): PassEvent {
+export function computePassEvent(site: ObservationSite, plane: PlaneState): PassEvent {
+  const { radius, maxAltitude } = site
   if (plane.v == null || plane.trackRad == null) {
     return createFailedEvent(plane)
   }

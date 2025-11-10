@@ -5,29 +5,30 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 
-const reactRecommended = react.configs.flat.recommended
-const reactHooksRecommended = reactHooks.configs.recommended
+const reactFlatRecommended = react.configs.flat.recommended
 
 export default tseslint.config(
-  { ignores: ['dist'] },
+  { ignores: ['dist/'] },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
+    ...reactFlatRecommended,
     languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser
+      ...reactFlatRecommended.languageOptions,
+      globals: {
+        ...reactFlatRecommended.languageOptions?.globals,
+        ...globals.browser
+      }
     },
     plugins: {
-      react,
+      ...reactFlatRecommended.plugins,
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh
     },
-    extends: [
-      js.configs.recommended,
-      ...tseslint.configs.recommended,
-      reactRecommended,
-      reactHooksRecommended
-    ],
     rules: {
+      ...reactFlatRecommended.rules,
+      ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': 'warn',
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off'

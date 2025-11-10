@@ -22,8 +22,10 @@ function useDemoPasses(site: ObservationSite) {
     return sampleStateVectors
       .map((state) => normalizeStateVector(site, state))
       .filter((plane): plane is PlaneState => plane !== null)
-      .map((plane) => computePassEvent(site, plane))
-      .filter((event) => event.ok)
+      .flatMap((plane) => {
+        const event = computePassEvent(site, plane)
+        return event.ok ? [event] : []
+      })
       .sort((a, b) => a.eta - b.eta)
   }, [site])
 }
