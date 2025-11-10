@@ -84,6 +84,8 @@
 
 ### 🤖 AI 助手的日誌
 
+- **2025/11/18**
+  - ✅ 完成：修正 computePassEvent 斜距計算，改用觀測點相對高度以符合 Gemini 的噪音等級建議。
 - **2025/11/17**
   - ✅ 完成：改寫 ESLint 扁平化設定，直接導入 React 與 React Hooks 推薦組態並保留熱更新檢查。
   - ✅ 完成：集中 StateVector 型別至 types.ts 並調整匯入，呼應 Gemini 關於型別組織的建議。

@@ -70,7 +70,8 @@ export function computePassEvent(
   const exitsAt = Math.max(0, t2)
   const duration = Math.max(0, exitsAt - eta)
 
-  const dg = altitude == null ? null : Math.hypot(dmin, altitude)
+  const siteAltitude = site.altitude ?? 0
+  const dg = altitude == null ? null : Math.hypot(dmin, altitude - siteAltitude)
   const level = calculateNoiseLevel(dg)
 
   return {
