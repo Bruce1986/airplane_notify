@@ -84,6 +84,8 @@
 
 ### 🤖 AI 助手的日誌
 
+- **2025/11/20**
+  - ✅ 完成：在 React 進入點新增 root 元素檢查與錯誤訊息，確保缺少掛載節點時能及早失敗並回應 Gemini 建議。
 - **2025/11/19**
   - ✅ 完成：改寫 ESLint flat config，確保 js/ts/react/react-hooks 推薦規則正確套用並維持 React Refresh 檢查。
   - ✅ 完成：調整 Demo Pass 過濾流程使用 flatMap 並修正 computePassEvent 介面，以回應 Gemini 效能與 API 建議。
