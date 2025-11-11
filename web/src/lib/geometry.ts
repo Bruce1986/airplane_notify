@@ -93,7 +93,7 @@ export function normalizeStateVector(
     callsign: state.callsign?.trim() || null,
     ...geodeticToEnu(site, state),
     v: state.velocity,
-    trackRad: state.true_track == null ? null : (state.true_track * Math.PI) / 180,
+    trackRad: state.true_track == null ? null : toRadians(state.true_track),
     h: altitude
   }
 }

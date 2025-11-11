@@ -26,8 +26,8 @@ describe('computePassEvent', () => {
   it('flags approaching planes within radius and altitude', () => {
     const event = computePassEvent(site, makePlane())
     expect(event.ok).toBe(true)
-    expect(event.eta).toBeGreaterThan(0)
-    expect(event.duration).toBeGreaterThan(0)
+    expect(event.eta).toBeCloseTo(1.11, 2)
+    expect(event.duration).toBeCloseTo(15.56, 2)
     expect(event.level).toBe('高')
   })
 

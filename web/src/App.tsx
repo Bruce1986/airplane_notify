@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import './App.css'
-import { computePassEvent, normalizeStateVector } from './lib/geometry'
 import type { ObservationSite } from './lib/types'
+import { processPassEvents } from './lib/pass-processing'
 import { demoSite, sampleStateVectors } from './sample-data'
 
 function formatSeconds(value: number): string {
@@ -19,14 +19,7 @@ function formatLevel(level: string | null): string {
 
 function useDemoPasses(site: ObservationSite) {
   return useMemo(() => {
-    return sampleStateVectors
-      .flatMap((state) => {
-        const plane = normalizeStateVector(site, state)
-        if (!plane) return []
-        const event = computePassEvent(site, plane)
-        return event.ok ? [event] : []
-      })
-      .sort((a, b) => a.eta - b.eta)
+    return processPassEvents(site, sampleStateVectors)
   }, [site])
 }
 
