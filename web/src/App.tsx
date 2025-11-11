@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import './App.css'
-import type { ObservationSite } from './lib/types'
+import type { ObservationSite, StateVector } from './lib/types'
 import { processPassEvents } from './lib/pass-processing'
 import { demoSite, sampleStateVectors } from './sample-data'
 
@@ -17,14 +17,14 @@ function formatLevel(level: string | null): string {
   return level ?? '預估中'
 }
 
-function useDemoPasses(site: ObservationSite) {
+function usePasses(site: ObservationSite, vectors: StateVector[]) {
   return useMemo(() => {
-    return processPassEvents(site, sampleStateVectors)
-  }, [site])
+    return processPassEvents(site, vectors)
+  }, [site, vectors])
 }
 
 export default function App() {
-  const passes = useDemoPasses(demoSite)
+  const passes = usePasses(demoSite, sampleStateVectors)
 
   return (
     <div className="app">

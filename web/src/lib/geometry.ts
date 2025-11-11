@@ -7,6 +7,7 @@ import type {
 } from './types'
 
 const EPS = 1e-6
+export const EARTH_RADIUS_METERS = 6378137
 const NOISE_LEVEL_HIGH_THRESHOLD = 1200
 const NOISE_LEVEL_MEDIUM_THRESHOLD = 2500
 
@@ -104,7 +105,6 @@ export function geodeticToEnu(site: ObservationSite, point: GeodeticPoint) {
   // NOTE: This uses an equirectangular projection that is sufficiently precise
   // within the ~700 m operating radius of the MVP. For larger regions or
   // high-precision needs, replace with a more exact geodetic conversion.
-  const rEarth = 6378137
   const lat0 = toRadians(site.latitude)
   const lon0 = toRadians(site.longitude)
   const lat = toRadians(point.latitude)
@@ -112,8 +112,8 @@ export function geodeticToEnu(site: ObservationSite, point: GeodeticPoint) {
   const dLat = lat - lat0
   const dLon = lon - lon0
   const meanLat = (lat + lat0) / 2
-  const x = dLon * Math.cos(meanLat) * rEarth
-  const y = dLat * rEarth
+  const x = dLon * Math.cos(meanLat) * EARTH_RADIUS_METERS
+  const y = dLat * EARTH_RADIUS_METERS
   return { x, y }
 }
 

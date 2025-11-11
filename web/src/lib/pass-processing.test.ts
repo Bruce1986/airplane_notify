@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { processPassEvents } from './pass-processing'
+import { EARTH_RADIUS_METERS } from './geometry'
 import type { ObservationSite, StateVector } from './types'
 
 const site: ObservationSite = {
@@ -10,8 +11,6 @@ const site: ObservationSite = {
   maxAltitude: 3000
 }
 
-const EARTH_RADIUS = 6378137
-
 function createStateVector(
   id: string,
   x: number,
@@ -20,9 +19,9 @@ function createStateVector(
 ): StateVector {
   const lat0 = 0 // radians for site latitude (0 degrees)
   const lon0 = 0
-  const lat = y / EARTH_RADIUS + lat0
+  const lat = y / EARTH_RADIUS_METERS + lat0
   const meanLat = (lat + lat0) / 2
-  const lon = x / (Math.cos(meanLat) * EARTH_RADIUS) + lon0
+  const lon = x / (Math.cos(meanLat) * EARTH_RADIUS_METERS) + lon0
   const toDegrees = (rad: number) => (rad * 180) / Math.PI
 
   const base: StateVector = {
