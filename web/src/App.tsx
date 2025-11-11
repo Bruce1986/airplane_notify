@@ -1,8 +1,8 @@
-import { useMemo } from 'react'
-
 import './App.css'
 import { processPassEvents } from './lib/pass-processing'
 import { demoSite, sampleStateVectors } from './sample-data'
+
+const demoPasses = processPassEvents(demoSite, sampleStateVectors)
 
 function formatSeconds(value: number): string {
   if (!Number.isFinite(value)) return '—'
@@ -18,11 +18,6 @@ function formatLevel(level: string | null): string {
 }
 
 export default function App() {
-  const demoPasses = useMemo(
-    () => processPassEvents(demoSite, sampleStateVectors),
-    [demoSite, sampleStateVectors]
-  )
-
   return (
     <div className="app">
       <header>

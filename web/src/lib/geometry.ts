@@ -53,7 +53,7 @@ export function computePassEvent(site: ObservationSite, plane: PlaneState): Pass
     return createFailedEvent(plane, dmin)
   }
 
-  const underRadical = Math.max(0, radius * radius - dmin * dmin)
+  const underRadical = radius * radius - dmin * dmin
   const timeToBorder = Math.sqrt(underRadical) / v
   const t1 = tCPA - timeToBorder
   const t2 = tCPA + timeToBorder
