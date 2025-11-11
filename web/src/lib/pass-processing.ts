@@ -16,9 +16,7 @@ export function processPassEvents(
   stateVectors: StateVector[]
 ): PassEvent[] {
   return stateVectors
-    .flatMap((state) => {
-      const event = processStateVector(site, state)
-      return event ? [event] : []
-    })
+    .map((state) => processStateVector(site, state))
+    .filter((event): event is PassEvent => event !== null)
     .sort((a, b) => a.eta - b.eta)
 }
