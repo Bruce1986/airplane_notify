@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { processPassEvents } from './pass-processing'
+import { processPassEvents, processStateVector } from './pass-processing'
 import { EARTH_RADIUS_METERS } from './geometry'
 import type { ObservationSite, StateVector } from './types'
 
@@ -61,5 +61,31 @@ describe('processPassEvents', () => {
     expect(events.every((event) => event.ok)).toBe(true)
     expect(events[0].eta).toBeLessThanOrEqual(events[1].eta)
     expect(events.map((event) => event.plane.id)).toEqual(['two', 'one'])
+  })
+})
+
+describe('processStateVector', () => {
+  it('returns a pass event when the plane produces an ok result', () => {
+    const state = createStateVector('ok', -500, 0, { velocity: 85, true_track: 90 })
+
+    const event = processStateVector(site, state)
+
+    expect(event).not.toBeNull()
+    expect(event?.ok).toBe(true)
+  })
+
+  it('returns null when normalization fails', () => {
+    const badState: StateVector = {
+      icao24: 'missing',
+      callsign: null,
+      latitude: null,
+      longitude: null,
+      geo_altitude: null,
+      baro_altitude: null,
+      velocity: null,
+      true_track: null
+    }
+
+    expect(processStateVector(site, badState)).toBeNull()
   })
 })

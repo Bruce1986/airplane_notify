@@ -84,6 +84,9 @@
 
 ### 🤖 AI 助手的日誌
 
+- **2025/11/22**
+  - ✅ 完成：將 Demo passes 計算抽出為模組層常數並導入 `processStateVector` helper 與單元測試，提升資料流程可讀性。
+  - ✅ 完成：確認 `eslint-plugin-react-hooks@7.0.1` 與 ESLint 9/TypeScript-ESLint 8 相容並更新 App 呈現，回應 Gemini 對 hook 設計的建議。
 - **2025/11/21**
   - ✅ 完成：調整測試工具鏈版本，使 React Testing Library 與 React 18 相容並同步升級 ESLint 9 + React Hooks 規則組合。
   - ✅ 完成：收斂 PlaneState 型別為非 optional 欄位，確保正規化後的航機資料結構明確。

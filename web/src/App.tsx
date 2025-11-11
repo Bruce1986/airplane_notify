@@ -1,8 +1,8 @@
-import { useMemo } from 'react'
 import './App.css'
-import type { ObservationSite, StateVector } from './lib/types'
 import { processPassEvents } from './lib/pass-processing'
 import { demoSite, sampleStateVectors } from './sample-data'
+
+const demoPasses = processPassEvents(demoSite, sampleStateVectors)
 
 function formatSeconds(value: number): string {
   if (!Number.isFinite(value)) return '—'
@@ -17,15 +17,7 @@ function formatLevel(level: string | null): string {
   return level ?? '預估中'
 }
 
-function usePasses(site: ObservationSite, vectors: StateVector[]) {
-  return useMemo(() => {
-    return processPassEvents(site, vectors)
-  }, [site, vectors])
-}
-
 export default function App() {
-  const passes = usePasses(demoSite, sampleStateVectors)
-
   return (
     <div className="app">
       <header>
@@ -40,8 +32,8 @@ export default function App() {
         <section className="card">
           <h2>即將進入半徑的航機</h2>
           <ul className="pass-list">
-            {passes.length === 0 && <li>目前沒有預警中的航機。</li>}
-            {passes.map((event) => (
+            {demoPasses.length === 0 && <li>目前沒有預警中的航機。</li>}
+            {demoPasses.map((event) => (
               <li key={event.plane.id} className="pass-item">
                 <strong>{event.plane.callsign ?? event.plane.id}</strong>
                 <div className="pass-meta">
