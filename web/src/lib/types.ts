@@ -11,12 +11,12 @@ export interface ObservationSite {
 
 export interface PlaneState {
   id: string
-  callsign?: string | null
+  callsign: string | null
   x: number
   y: number
   v: number | null
   trackRad: number | null
-  h?: number | null
+  h: number | null
 }
 
 export interface PassEvent {

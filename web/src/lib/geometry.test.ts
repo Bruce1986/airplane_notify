@@ -13,6 +13,7 @@ const site: ObservationSite = {
 function makePlane(overrides: Partial<PlaneState> = {}): PlaneState {
   return {
     id: 'abc',
+    callsign: null,
     x: -800,
     y: 0,
     v: 90,
