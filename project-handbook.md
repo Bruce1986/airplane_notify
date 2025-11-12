@@ -84,6 +84,34 @@
 
 ### 🤖 AI 助手的日誌
 
+- **2025/11/23**
+  - ✅ 完成：將噪音等級閾值改為 ObservationSite 可設定參數並加入測試覆蓋，回應 Gemini 的彈性需求。
+  - ✅ 完成：重構 pass-processing 為 flatMap 流程以減少暫存陣列，對齊先前的優化計畫。
+- **2025/11/22**
+  - ✅ 完成：將 Demo passes 計算抽出為模組層常數並導入 `processStateVector` helper 與單元測試，提升資料流程可讀性。
+  - ✅ 完成：確認 `eslint-plugin-react-hooks@7.0.1` 與 ESLint 9/TypeScript-ESLint 8 相容並更新 App 呈現，回應 Gemini 對 hook 設計的建議。
+- **2025/11/21**
+  - ✅ 完成：調整測試工具鏈版本，使 React Testing Library 與 React 18 相容並同步升級 ESLint 9 + React Hooks 規則組合。
+  - ✅ 完成：收斂 PlaneState 型別為非 optional 欄位，確保正規化後的航機資料結構明確。
+- **2025/11/20**
+  - ✅ 完成：在 React 進入點新增 root 元素檢查與錯誤訊息，確保缺少掛載節點時能及早失敗並回應 Gemini 建議。
+- **2025/11/19**
+  - ✅ 完成：改寫 ESLint flat config，確保 js/ts/react/react-hooks 推薦規則正確套用並維持 React Refresh 檢查。
+  - ✅ 完成：調整 Demo Pass 過濾流程使用 flatMap 並修正 computePassEvent 介面，以回應 Gemini 效能與 API 建議。
+  - ✅ 完成：降版 @testing-library/react 至最新穩定版並補充 .vite 快取忽略條目。
+- **2025/11/18**
+  - ✅ 完成：修正 computePassEvent 斜距計算，改用觀測點相對高度以符合 Gemini 的噪音等級建議。
+- **2025/11/17**
+  - ✅ 完成：改寫 ESLint 扁平化設定，直接導入 React 與 React Hooks 推薦組態並保留熱更新檢查。
+  - ✅ 完成：集中 StateVector 型別至 types.ts 並調整匯入，呼應 Gemini 關於型別組織的建議。
+- **2025/11/16**
+  - ✅ 完成：將 computePassEvent 失敗事件 helper 提升至模組層，避免重複宣告並符合 Gemini 建議。
+  - ✅ 完成：補充 geodeticToEnu 投影近似的使用範圍，並收斂 toRadians 為檔案內部使用。
+- **2025/11/15**
+  - ✅ 完成：依 Gemini 建議補齊 React 相關規則、React Refresh 檢查與自動版本偵測設定，強化 ESLint 守備。
+  - ✅ 完成：調整噪音等級閾值為具名常數、清理未使用型別並改用穩定版 react-hooks plugin。
+- **2025/11/14**
+  - ✅ 完成：將 computePassEvent 失敗事件輸出抽取為 helper，降低重複碼並呼應 Gemini 建議。
 - **2025/11/13**
   - ✅ 完成：補充 README ENU 座標系統軸向與真航向量測方式，避免實作歧義。
   - ✅ 完成：將噪音等級閾值納入可設定參數，強調現場可調校。
@@ -99,6 +127,8 @@
   - ✅ 完成：統一 README 術語，將「通過持續秒數」更新為「剩餘通過秒數」，以釐清其為剩餘時間。
   - ✅ 完成：依據 Gemini 建議統一 CPA 推導中的符號為 \hat{d}(θ)，移除多餘變數符號。
   - ✅ 完成：補上 README TL;DR 摘要、座標轉換實作方案，並統一輪詢頻率說明以呼應 OpenSky 匿名限制。
+  - ✅ 完成：建立 Vite + React + TypeScript Demo 面板，實作 computePassEvent 與單元測試。
+  - ✅ 完成：整理 README 對應的 W1/W2/W3 進度規劃並落地為 docs/development-plan.md。
 - **2025/11/05**
   - ✅ 完成：修正 README 中 computePassEvent CPA 邏輯，避免忽略仍在半徑內的航機
 - **2025/09/05**
