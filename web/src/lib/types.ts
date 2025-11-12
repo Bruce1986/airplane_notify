@@ -1,5 +1,10 @@
 export type NoiseLevel = '高' | '中' | '低' | null
 
+export interface NoiseThresholds {
+  high: number
+  medium: number
+}
+
 export interface ObservationSite {
   name: string
   latitude: number
@@ -7,6 +12,7 @@ export interface ObservationSite {
   altitude?: number
   radius: number
   maxAltitude: number
+  noiseThresholds?: NoiseThresholds
 }
 
 export interface PlaneState {

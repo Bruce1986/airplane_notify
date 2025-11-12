@@ -6,7 +6,11 @@ export const demoSite: ObservationSite = {
   longitude: 121.5222,
   altitude: 20,
   radius: 700,
-  maxAltitude: 3000
+  maxAltitude: 3000,
+  noiseThresholds: {
+    high: 1200,
+    medium: 2500
+  }
 }
 
 export const sampleStateVectors: StateVector[] = [

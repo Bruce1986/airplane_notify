@@ -7,7 +7,11 @@ const site: ObservationSite = {
   latitude: 0,
   longitude: 0,
   radius: 700,
-  maxAltitude: 3000
+  maxAltitude: 3000,
+  noiseThresholds: {
+    high: 1200,
+    medium: 2500
+  }
 }
 
 function makePlane(overrides: Partial<PlaneState> = {}): PlaneState {
@@ -30,6 +34,20 @@ describe('computePassEvent', () => {
     expect(event.eta).toBeCloseTo(1.11, 2)
     expect(event.duration).toBeCloseTo(15.56, 2)
     expect(event.level).toBe('高')
+  })
+
+  it('respects site-specific noise thresholds', () => {
+    const relaxedSite: ObservationSite = {
+      ...site,
+      noiseThresholds: {
+        high: 500,
+        medium: 1200
+      }
+    }
+
+    const event = computePassEvent(relaxedSite, makePlane())
+
+    expect(event.level).toBe('中')
   })
 
   it('returns Infinity eta when plane misses radius', () => {

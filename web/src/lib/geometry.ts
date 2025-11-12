@@ -1,5 +1,6 @@
 import type {
   NoiseLevel,
+  NoiseThresholds,
   ObservationSite,
   PassEvent,
   PlaneState,
@@ -8,8 +9,10 @@ import type {
 
 const EPS = 1e-6
 export const EARTH_RADIUS_METERS = 6378137
-const NOISE_LEVEL_HIGH_THRESHOLD = 1200
-const NOISE_LEVEL_MEDIUM_THRESHOLD = 2500
+const DEFAULT_NOISE_THRESHOLDS: NoiseThresholds = {
+  high: 1200,
+  medium: 2500
+}
 
 function createFailedEvent(plane: PlaneState, dmin: number = Infinity): PassEvent {
   return {
@@ -24,15 +27,16 @@ function createFailedEvent(plane: PlaneState, dmin: number = Infinity): PassEven
   }
 }
 
-function calculateNoiseLevel(dg: number | null): NoiseLevel {
+function calculateNoiseLevel(dg: number | null, thresholds: NoiseThresholds): NoiseLevel {
   if (dg == null) return null
-  if (dg < NOISE_LEVEL_HIGH_THRESHOLD) return '高'
-  if (dg < NOISE_LEVEL_MEDIUM_THRESHOLD) return '中'
+  if (dg < thresholds.high) return '高'
+  if (dg < thresholds.medium) return '中'
   return '低'
 }
 
 export function computePassEvent(site: ObservationSite, plane: PlaneState): PassEvent {
   const { radius, maxAltitude } = site
+  const thresholds = resolveNoiseThresholds(site)
   if (plane.v == null || plane.trackRad == null) {
     return createFailedEvent(plane)
   }
@@ -69,7 +73,7 @@ export function computePassEvent(site: ObservationSite, plane: PlaneState): Pass
 
   const siteAltitude = site.altitude ?? 0
   const dg = altitude == null ? null : Math.hypot(dmin, altitude - siteAltitude)
-  const level = calculateNoiseLevel(dg)
+  const level = calculateNoiseLevel(dg, thresholds)
 
   return {
     plane,
@@ -115,6 +119,15 @@ export function geodeticToEnu(site: ObservationSite, point: GeodeticPoint) {
   const x = dLon * Math.cos(meanLat) * EARTH_RADIUS_METERS
   const y = dLat * EARTH_RADIUS_METERS
   return { x, y }
+}
+
+function resolveNoiseThresholds(site: ObservationSite): NoiseThresholds {
+  const overrides = site.noiseThresholds
+  if (!overrides) return DEFAULT_NOISE_THRESHOLDS
+  return {
+    high: overrides.high ?? DEFAULT_NOISE_THRESHOLDS.high,
+    medium: overrides.medium ?? DEFAULT_NOISE_THRESHOLDS.medium
+  }
 }
 
 function toRadians(degrees: number): number {

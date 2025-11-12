@@ -84,6 +84,9 @@
 
 ### 🤖 AI 助手的日誌
 
+- **2025/11/23**
+  - ✅ 完成：將噪音等級閾值改為 ObservationSite 可設定參數並加入測試覆蓋，回應 Gemini 的彈性需求。
+  - ✅ 完成：重構 pass-processing 為 flatMap 流程以減少暫存陣列，對齊先前的優化計畫。
 - **2025/11/22**
   - ✅ 完成：將 Demo passes 計算抽出為模組層常數並導入 `processStateVector` helper 與單元測試，提升資料流程可讀性。
   - ✅ 完成：確認 `eslint-plugin-react-hooks@7.0.1` 與 ESLint 9/TypeScript-ESLint 8 相容並更新 App 呈現，回應 Gemini 對 hook 設計的建議。
