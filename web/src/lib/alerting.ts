@@ -1,4 +1,5 @@
 import type { PassEvent } from './types'
+import { formatSeconds } from './formatters'
 
 export type AlertStage = 'idle' | 'monitor' | 'warning' | 'critical' | 'active'
 
@@ -94,13 +95,7 @@ function describeStage(stage: AlertStage, event: PassEvent | null) {
   }
 }
 
-function formatSeconds(value: number): string {
-  const rounded = Math.round(Math.max(0, value))
-  return `${rounded} 秒`
-}
-
 export const __testables = {
   determineStage,
-  normalizeThresholds,
-  formatSeconds
+  normalizeThresholds
 }

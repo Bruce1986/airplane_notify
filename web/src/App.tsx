@@ -2,13 +2,9 @@ import { startTransition, useEffect, useState } from 'react'
 import './App.css'
 import { processPassEvents } from './lib/pass-processing'
 import { evaluateAlertStatus } from './lib/alerting'
+import { formatSeconds } from './lib/formatters'
 import { demoSite, sampleStateVectors } from './sample-data'
 import type { PassEvent } from './lib/types'
-
-function formatSeconds(value: number): string {
-  if (!Number.isFinite(value)) return '—'
-  return `${Math.round(value)}s`
-}
 
 function formatDistance(value: number): string {
   return `${value.toFixed(0)} m`

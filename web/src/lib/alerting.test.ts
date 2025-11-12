@@ -48,18 +48,13 @@ describe('evaluateAlertStatus', () => {
 })
 
 describe('alerting helpers', () => {
-  const { determineStage, normalizeThresholds, formatSeconds } = __testables
+  const { determineStage, normalizeThresholds } = __testables
 
   it('ensures thresholds stay non-negative and ordered', () => {
     expect(normalizeThresholds({ warning: -5, critical: 8 })).toEqual({
       warning: 8,
       critical: 8
     })
-  })
-
-  it('formats seconds with rounding and floor at zero', () => {
-    expect(formatSeconds(12.6)).toBe('13 秒')
-    expect(formatSeconds(-5)).toBe('0 秒')
   })
 
   it('determines stages using normalized thresholds', () => {
