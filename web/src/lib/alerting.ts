@@ -26,7 +26,7 @@ export function evaluateAlertStatus(
 ): AlertStatus {
   const normalized = normalizeThresholds(thresholds)
   const stage = determineStage(event, normalized)
-  const { title, message } = describeStage(stage, event)
+  const { title, message } = describeStage(stage, event, normalized)
   return {
     stage,
     title,
@@ -55,7 +55,11 @@ function determineStage(
   return 'monitor'
 }
 
-function describeStage(stage: AlertStage, event: PassEvent | null) {
+function describeStage(
+  stage: AlertStage,
+  event: PassEvent | null,
+  thresholds: AlertThresholds
+) {
   if (!event) {
     return {
       title: '目前沒有預警中的航機',
@@ -77,14 +81,14 @@ function describeStage(stage: AlertStage, event: PassEvent | null) {
 
   if (stage === 'critical') {
     return {
-      title: '演出模式：T-10 秒內提醒',
+      title: `演出模式：T-${thresholds.critical} 秒內提醒`,
       message: `${planeName} 將在 ${etaText} 內進入半徑，預估停留 ${durationText}，噪音等級：${levelText}。`
     }
   }
 
   if (stage === 'warning') {
     return {
-      title: '提醒：T-30 秒內有航機靠近',
+      title: `提醒：T-${thresholds.warning} 秒內有航機靠近`,
       message: `${planeName} 約 ${etaText} 後接近，預估通過 ${durationText}，噪音等級：${levelText}。`
     }
   }

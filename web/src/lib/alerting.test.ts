@@ -45,6 +45,15 @@ describe('evaluateAlertStatus', () => {
     })
     expect(status.stage).toBe('critical')
   })
+
+  it('uses provided thresholds when generating titles', () => {
+    const thresholds = { warning: 12, critical: 4 }
+    const warningStatus = evaluateAlertStatus(createEvent({ eta: 8 }), thresholds)
+    expect(warningStatus.title).toContain('T-12 秒內')
+
+    const criticalStatus = evaluateAlertStatus(createEvent({ eta: 3 }), thresholds)
+    expect(criticalStatus.title).toContain('T-4 秒內')
+  })
 })
 
 describe('alerting helpers', () => {
