@@ -95,7 +95,7 @@ function describeStage(
 
   return {
     title: '預警：航機即將進入觀測半徑',
-    message: `${planeName} 約 ${etaText} 後進入，預估通過 ${durationText}。`
+    message: `${planeName} 約 ${etaText} 後進入，預估通過 ${durationText}，噪音等級：${levelText}。`
   }
 }
 

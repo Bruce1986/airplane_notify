@@ -54,6 +54,11 @@ describe('evaluateAlertStatus', () => {
     const criticalStatus = evaluateAlertStatus(createEvent({ eta: 3 }), thresholds)
     expect(criticalStatus.title).toContain('T-4 秒內')
   })
+
+  it('includes the noise level in monitor stage messages', () => {
+    const status = evaluateAlertStatus(createEvent({ eta: 45 }))
+    expect(status.message).toContain('噪音等級：中')
+  })
 })
 
 describe('alerting helpers', () => {
