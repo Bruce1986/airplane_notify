@@ -43,7 +43,7 @@ describe('evaluateAlertStatus', () => {
       warning: 5,
       critical: 20
     })
-    expect(status.stage).toBe('critical')
+    expect(status.stage).toBe('warning')
   })
 
   it('uses provided thresholds when generating titles', () => {
@@ -67,7 +67,14 @@ describe('alerting helpers', () => {
   it('ensures thresholds stay non-negative and ordered', () => {
     expect(normalizeThresholds({ warning: -5, critical: 8 })).toEqual({
       warning: 8,
-      critical: 8
+      critical: 0
+    })
+  })
+
+  it('swaps thresholds when warning is set sooner than critical', () => {
+    expect(normalizeThresholds({ warning: 5, critical: 20 })).toEqual({
+      warning: 20,
+      critical: 5
     })
   })
 

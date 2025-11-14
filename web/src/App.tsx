@@ -34,7 +34,7 @@ export default function App() {
         </p>
       </header>
 
-      <AlertBanner passes={demoPasses} />
+      <AlertBanner primaryPass={demoPasses[0] ?? null} />
 
       <div className="dashboard-grid">
         <section className="card">
@@ -88,12 +88,11 @@ export default function App() {
 }
 
 interface AlertBannerProps {
-  passes: PassEvent[]
+  primaryPass: PassEvent | null
 }
 
-function AlertBanner({ passes }: AlertBannerProps) {
-  const primary = passes[0] ?? null
-  const status = evaluateAlertStatus(primary)
+function AlertBanner({ primaryPass }: AlertBannerProps) {
+  const status = evaluateAlertStatus(primaryPass)
 
   return (
     <section className={`alert-banner alert-stage-${status.stage}`}>
