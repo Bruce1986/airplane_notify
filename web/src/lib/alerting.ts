@@ -26,6 +26,15 @@ export function evaluateAlertStatus(
 ): AlertStatus {
   const normalized = normalizeThresholds(thresholds)
   const stage = determineStage(event, normalized)
+  if (!event || stage === 'idle') {
+    return {
+      stage: 'idle',
+      title: '目前沒有預警中的航機',
+      message: '等待 OpenSky 更新。',
+      event: null
+    }
+  }
+
   const { title, message } = describeStage(stage, event, normalized)
   return {
     stage,
@@ -56,17 +65,10 @@ function determineStage(
 }
 
 function describeStage(
-  stage: AlertStage,
-  event: PassEvent | null,
+  stage: Exclude<AlertStage, 'idle'>,
+  event: PassEvent,
   thresholds: AlertThresholds
 ) {
-  if (!event) {
-    return {
-      title: '目前沒有預警中的航機',
-      message: '等待 OpenSky 更新。'
-    }
-  }
-
   const planeName = event.plane.callsign ?? event.plane.id
   const etaText = formatSeconds(event.eta)
   const durationText = formatSeconds(event.duration)
@@ -88,11 +90,18 @@ function describeStage(
         title: `提醒：T-${thresholds.warning} 秒內有航機靠近`,
         message: `${planeName} 約 ${etaText} 後接近，預估通過 ${durationText}，噪音等級：${levelText}。`
       }
-    default:
+    case 'monitor':
       return {
         title: '預警：航機即將進入觀測半徑',
         message: `${planeName} 約 ${etaText} 後進入，預估通過 ${durationText}，噪音等級：${levelText}。`
       }
+    default: {
+      const exhaustiveCheck: never = stage
+      return {
+        title: '未知狀態',
+        message: `系統處於未預期的狀態：${exhaustiveCheck}`
+      }
+    }
   }
 }
 
