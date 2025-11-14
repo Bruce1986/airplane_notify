@@ -14,6 +14,35 @@ function formatLevel(level: string | null): string {
   return level ?? '預估中'
 }
 
+export interface PassItemProps {
+  event: PassEvent
+  isPrimary: boolean
+}
+
+export function PassItem({ event, isPrimary }: PassItemProps) {
+  const isActive = event.eta <= 0
+  const etaLabel = isActive ? '通過中' : `倒數：${formatSeconds(event.eta)}`
+  const durationLabel = isActive
+    ? `剩餘：${formatSeconds(event.duration)}`
+    : `預估通過：${formatSeconds(event.duration)}`
+
+  const classNames = ['pass-item']
+  if (isPrimary) classNames.push('pass-item--primary')
+  if (isActive) classNames.push('pass-item--active')
+
+  return (
+    <li className={classNames.join(' ')}>
+      <strong>{event.plane.callsign ?? event.plane.id}</strong>
+      <div className="pass-meta">
+        <span>{etaLabel}</span>
+        <span>{durationLabel}</span>
+        <span>最近距離：{formatDistance(event.dmin)}</span>
+        <span>噪音等級：{formatLevel(event.level)}</span>
+      </div>
+    </li>
+  )
+}
+
 export default function App() {
   const [demoPasses, setDemoPasses] = useState<PassEvent[]>([])
 
@@ -41,28 +70,9 @@ export default function App() {
           <h2>即將進入半徑的航機</h2>
           <ul className="pass-list">
             {demoPasses.length === 0 && <li>目前沒有預警中的航機。</li>}
-            {demoPasses.map((event, index) => {
-              const isActive = event.eta <= 0
-              const etaLabel = isActive ? '通過中' : `倒數：${formatSeconds(event.eta)}`
-              const durationLabel = isActive
-                ? `剩餘：${formatSeconds(event.duration)}`
-                : `預估通過：${formatSeconds(event.duration)}`
-              const classNames = ['pass-item']
-              if (index === 0) classNames.push('pass-item--primary')
-              if (isActive) classNames.push('pass-item--active')
-
-              return (
-                <li key={event.plane.id} className={classNames.join(' ')}>
-                  <strong>{event.plane.callsign ?? event.plane.id}</strong>
-                  <div className="pass-meta">
-                    <span>{etaLabel}</span>
-                    <span>{durationLabel}</span>
-                    <span>最近距離：{formatDistance(event.dmin)}</span>
-                    <span>噪音等級：{formatLevel(event.level)}</span>
-                  </div>
-                </li>
-              )
-            })}
+            {demoPasses.map((event, index) => (
+              <PassItem key={event.plane.id} event={event} isPrimary={index === 0} />
+            ))}
           </ul>
         </section>
         <section className="card">
