@@ -25,7 +25,6 @@ export function evaluateAlertStatus(
   thresholds: AlertThresholds = DEFAULT_THRESHOLDS
 ): AlertStatus {
   const normalized = normalizeThresholds(thresholds)
-  const stage = determineStage(event, normalized)
   if (!event) {
     return {
       stage: 'idle',
@@ -35,6 +34,7 @@ export function evaluateAlertStatus(
     }
   }
 
+  const stage = determineStage(event, normalized)
   const { title, message } = describeStage(stage, event, normalized)
   return {
     stage,
@@ -53,6 +53,14 @@ function normalizeThresholds(thresholds: AlertThresholds): AlertThresholds {
   }
 }
 
+function determineStage(
+  event: null,
+  thresholds: AlertThresholds
+): 'idle'
+function determineStage(
+  event: PassEvent,
+  thresholds: AlertThresholds
+): Exclude<AlertStage, 'idle'>
 function determineStage(
   event: PassEvent | null,
   thresholds: AlertThresholds
