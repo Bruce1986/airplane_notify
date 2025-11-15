@@ -8,8 +8,14 @@ export interface UseOpenSkyPollingOptions {
   intervalMs: number
 }
 
-export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions): PassEvent[] {
+export interface UseOpenSkyPollingResult {
+  passEvents: PassEvent[]
+  error: Error | null
+}
+
+export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions): UseOpenSkyPollingResult {
   const [passEvents, setPassEvents] = useState<PassEvent[]>([])
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -33,13 +39,16 @@ export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions
         if (!controller.signal.aborted) {
           startTransition(() => {
             setPassEvents(passes)
+            setError(null)
           })
         }
       } catch (error) {
         if (!controller.signal.aborted) {
           console.error('Failed to load OpenSky states', error)
+          const normalizedError = error instanceof Error ? error : new Error(String(error))
           startTransition(() => {
             setPassEvents([])
+            setError(normalizedError)
           })
         }
       } finally {
@@ -59,5 +68,5 @@ export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions
     }
   }, [site, intervalMs])
 
-  return passEvents
+  return { passEvents, error }
 }

@@ -43,7 +43,10 @@ export function PassItem({ event, isPrimary }: PassItemProps) {
 }
 
 export default function App() {
-  const livePassEvents = useOpenSkyPolling({ site: observationSite, intervalMs: POLL_INTERVAL_MS })
+  const { passEvents: livePassEvents, error: liveError } = useOpenSkyPolling({
+    site: observationSite,
+    intervalMs: POLL_INTERVAL_MS
+  })
 
   return (
     <div className="app">
@@ -61,7 +64,8 @@ export default function App() {
         <section className="card">
           <h2>即將進入半徑的航機</h2>
           <ul className="pass-list">
-            {livePassEvents.length === 0 && <li>目前沒有預警中的航機。</li>}
+            {liveError && <li>資料載入失敗：{liveError.message}</li>}
+            {!liveError && livePassEvents.length === 0 && <li>目前沒有預警中的航機。</li>}
             {livePassEvents.map((event, index) => (
               <PassItem key={event.plane.id} event={event} isPrimary={index === 0} />
             ))}

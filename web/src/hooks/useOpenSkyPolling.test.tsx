@@ -57,11 +57,12 @@ describe('useOpenSkyPolling', () => {
 
   it('polls OpenSky and resolves pass events', async () => {
     function Harness() {
-      const passEvents = useOpenSkyPolling({ site, intervalMs: 1000 })
+      const { passEvents, error } = useOpenSkyPolling({ site, intervalMs: 1000 })
       return (
         <>
           <span data-testid="plane-id">{passEvents[0]?.plane.id ?? 'none'}</span>
           <span data-testid="event-count">{passEvents.length}</span>
+          <span data-testid="error">{error ? error.message : 'none'}</span>
         </>
       )
     }
@@ -72,6 +73,7 @@ describe('useOpenSkyPolling', () => {
       expect(screen.getByTestId('plane-id').textContent).toBe('abc123')
     })
     expect(screen.getByTestId('event-count').textContent).toBe('1')
+    expect(screen.getByTestId('error').textContent).toBe('none')
 
     const expectedUrl = buildStatesUrl(site)
     expect(fetchMock).toHaveBeenCalledWith(expectedUrl, expect.objectContaining({ cache: 'no-store' }))
@@ -83,7 +85,7 @@ describe('useOpenSkyPolling', () => {
     // Use real timers with a short interval; jsdom's timer mocks do not reliably
     // control window.setTimeout in this environment.
     function Harness() {
-      const passEvents = useOpenSkyPolling({ site, intervalMs: 20 })
+      const { passEvents } = useOpenSkyPolling({ site, intervalMs: 20 })
       return <span data-testid="event-count">{passEvents.length}</span>
     }
 
@@ -96,6 +98,32 @@ describe('useOpenSkyPolling', () => {
     await waitFor(() => {
       expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2)
     })
+
+    unmount()
+  })
+
+  it('exposes polling errors', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 503
+    } as Response)
+
+    function Harness() {
+      const { error, passEvents } = useOpenSkyPolling({ site, intervalMs: 1000 })
+      return (
+        <>
+          <span data-testid="error">{error ? error.message : 'none'}</span>
+          <span data-testid="event-count">{passEvents.length}</span>
+        </>
+      )
+    }
+
+    const { unmount } = render(<Harness />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('error').textContent).toContain('OpenSky request failed')
+    })
+    expect(screen.getByTestId('event-count').textContent).toBe('0')
 
     unmount()
   })
