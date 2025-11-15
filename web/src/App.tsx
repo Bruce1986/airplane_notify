@@ -1,10 +1,9 @@
-import { startTransition, useEffect, useState } from 'react'
 import './App.css'
-import { processPassEvents } from './lib/pass-processing'
 import { evaluateAlertStatus } from './lib/alerting'
 import { formatSeconds } from './lib/formatters'
-import { demoSite, sampleStateVectors } from './sample-data'
 import type { PassEvent } from './lib/types'
+import { useOpenSkyPolling } from './hooks/useOpenSkyPolling'
+import { observationSite, POLL_INTERVAL_MS } from './site-config'
 
 function formatDistance(value: number): string {
   return `${value.toFixed(0)} m`
@@ -44,14 +43,10 @@ export function PassItem({ event, isPrimary }: PassItemProps) {
 }
 
 export default function App() {
-  const [demoPasses, setDemoPasses] = useState<PassEvent[]>([])
-
-  useEffect(() => {
-    const passes = processPassEvents(demoSite, sampleStateVectors)
-    startTransition(() => {
-      setDemoPasses(passes)
-    })
-  }, [])
+  const { passEvents: livePassEvents, error: liveError } = useOpenSkyPolling({
+    site: observationSite,
+    intervalMs: POLL_INTERVAL_MS
+  })
 
   return (
     <div className="app">
@@ -59,18 +54,19 @@ export default function App() {
         <p className="pill">MVP Sprint · W1 Prototype</p>
         <h1>飛機頭頂預警 — 即時預報面板</h1>
         <p>
-          位置：{demoSite.name}（半徑 {demoSite.radius} m / 限制高度 {demoSite.maxAltitude} m）
+          位置：{observationSite.name}（半徑 {observationSite.radius} m / 限制高度 {observationSite.maxAltitude} m）
         </p>
       </header>
 
-      <AlertBanner primaryPass={demoPasses[0] ?? null} />
+      <AlertBanner primaryPass={livePassEvents[0] ?? null} />
 
       <div className="dashboard-grid">
         <section className="card">
           <h2>即將進入半徑的航機</h2>
           <ul className="pass-list">
-            {demoPasses.length === 0 && <li>目前沒有預警中的航機。</li>}
-            {demoPasses.map((event, index) => (
+            {liveError && <li>資料載入失敗：{liveError.message}</li>}
+            {!liveError && livePassEvents.length === 0 && <li>目前沒有預警中的航機。</li>}
+            {livePassEvents.map((event, index) => (
               <PassItem key={event.plane.id} event={event} isPrimary={index === 0} />
             ))}
           </ul>

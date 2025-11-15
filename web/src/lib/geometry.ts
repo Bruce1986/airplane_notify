@@ -92,13 +92,13 @@ export function normalizeStateVector(
   state: StateVector
 ): PlaneState | null {
   if (state.latitude == null || state.longitude == null) return null
-  const altitude = state.geo_altitude ?? state.baro_altitude ?? null
+  const altitude = state.geoAltitude ?? state.baroAltitude ?? null
   return {
     id: state.icao24,
     callsign: state.callsign?.trim() || null,
     ...geodeticToEnu(site, state),
     v: state.velocity,
-    trackRad: state.true_track == null ? null : toRadians(state.true_track),
+    trackRad: state.trueTrack == null ? null : toRadians(state.trueTrack),
     h: altitude
   }
 }

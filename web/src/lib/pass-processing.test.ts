@@ -33,10 +33,10 @@ function createStateVector(
     callsign: id.toUpperCase(),
     latitude: toDegrees(lat),
     longitude: toDegrees(lon),
-    geo_altitude: 800,
-    baro_altitude: 780,
+    geoAltitude: 800,
+    baroAltitude: 780,
     velocity: 90,
-    true_track: 90
+    trueTrack: 90
   }
 
   return { ...base, ...overrides }
@@ -45,17 +45,17 @@ function createStateVector(
 describe('processPassEvents', () => {
   it('normalizes state vectors and sorts valid pass events by ETA', () => {
     const vectors: StateVector[] = [
-      createStateVector('one', -800, 0, { velocity: 90, true_track: 90 }),
-      createStateVector('two', -500, 0, { velocity: 60, true_track: 90 }),
+      createStateVector('one', -800, 0, { velocity: 90, trueTrack: 90 }),
+      createStateVector('two', -500, 0, { velocity: 60, trueTrack: 90 }),
       {
         icao24: 'invalid',
         callsign: null,
         latitude: null,
         longitude: null,
-        geo_altitude: null,
-        baro_altitude: null,
+        geoAltitude: null,
+        baroAltitude: null,
         velocity: null,
-        true_track: null
+        trueTrack: null
       }
     ]
 
@@ -70,7 +70,7 @@ describe('processPassEvents', () => {
 
 describe('processStateVector', () => {
   it('returns a pass event when the plane produces an ok result', () => {
-    const state = createStateVector('ok', -500, 0, { velocity: 85, true_track: 90 })
+    const state = createStateVector('ok', -500, 0, { velocity: 85, trueTrack: 90 })
 
     const event = processStateVector(site, state)
 
@@ -84,10 +84,10 @@ describe('processStateVector', () => {
       callsign: null,
       latitude: null,
       longitude: null,
-      geo_altitude: null,
-      baro_altitude: null,
+      geoAltitude: null,
+      baroAltitude: null,
       velocity: null,
-      true_track: null
+      trueTrack: null
     }
 
     expect(processStateVector(site, badState)).toBeNull()
