@@ -47,10 +47,10 @@ export function evaluateAlertStatus(
 function normalizeThresholds(thresholds: AlertThresholds): AlertThresholds {
   const warning = Math.max(0, thresholds.warning)
   const critical = Math.max(0, thresholds.critical)
-  if (warning < critical) {
-    return { warning: critical, critical: warning }
+  return {
+    warning: Math.max(warning, critical),
+    critical: Math.min(warning, critical)
   }
-  return { warning, critical }
 }
 
 function determineStage(
