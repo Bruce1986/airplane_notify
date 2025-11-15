@@ -2,6 +2,7 @@ import type { ObservationSite, StateVector } from './types'
 
 const METERS_PER_DEGREE_LAT = 111_320
 const MIN_LON_SCALE = 1e-6
+const OPENSKY_STATES_API_URL = 'https://opensky-network.org/api/states/all'
 
 // For field indices, see OpenSky REST API documentation:
 // https://openskynetwork.github.io/opensky-api/rest.html#all-state-vectors
@@ -33,7 +34,7 @@ export function buildStatesUrl(site: ObservationSite): string {
   )
   const deltaLon = radius / metersPerDegreeLon
 
-  const url = new URL('https://opensky-network.org/api/states/all')
+  const url = new URL(OPENSKY_STATES_API_URL)
   url.searchParams.set('lamin', String(centerLat - deltaLat))
   url.searchParams.set('lamax', String(centerLat + deltaLat))
   url.searchParams.set('lomin', String(centerLon - deltaLon))
@@ -59,22 +60,20 @@ function normalizeStateRow(row: unknown): StateVector | null {
   if (typeof icao24 !== 'string') return null
 
   const callsign = typedRow[StateVectorIdx.CALLSIGN]
-  const latitude = typedRow[StateVectorIdx.LATITUDE]
-  const longitude = typedRow[StateVectorIdx.LONGITUDE]
-  const geoAltitude = typedRow[StateVectorIdx.GEO_ALTITUDE]
-  const baroAltitude = typedRow[StateVectorIdx.BARO_ALTITUDE]
-  const velocity = typedRow[StateVectorIdx.VELOCITY]
-  const trueTrack = typedRow[StateVectorIdx.TRUE_TRACK]
+  const getNumericField = (index: number): number | null => {
+    const value = typedRow[index]
+    return typeof value === 'number' ? value : null
+  }
 
   return {
     icao24,
     callsign: typeof callsign === 'string' ? callsign.trim() || null : null,
-    latitude: typeof latitude === 'number' ? latitude : null,
-    longitude: typeof longitude === 'number' ? longitude : null,
-    geoAltitude: typeof geoAltitude === 'number' ? geoAltitude : null,
-    baroAltitude: typeof baroAltitude === 'number' ? baroAltitude : null,
-    velocity: typeof velocity === 'number' ? velocity : null,
-    trueTrack: typeof trueTrack === 'number' ? trueTrack : null
+    latitude: getNumericField(StateVectorIdx.LATITUDE),
+    longitude: getNumericField(StateVectorIdx.LONGITUDE),
+    geoAltitude: getNumericField(StateVectorIdx.GEO_ALTITUDE),
+    baroAltitude: getNumericField(StateVectorIdx.BARO_ALTITUDE),
+    velocity: getNumericField(StateVectorIdx.VELOCITY),
+    trueTrack: getNumericField(StateVectorIdx.TRUE_TRACK)
   }
 }
 

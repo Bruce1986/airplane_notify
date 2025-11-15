@@ -52,6 +52,7 @@ describe('useOpenSkyPolling', () => {
     // @ts-expect-error restore original fetch reference
     global.fetch = originalFetch
     fetchMock.mockReset()
+    vi.useRealTimers()
   })
 
   it('polls OpenSky and resolves pass events', async () => {
@@ -74,6 +75,27 @@ describe('useOpenSkyPolling', () => {
 
     const expectedUrl = buildStatesUrl(site)
     expect(fetchMock).toHaveBeenCalledWith(expectedUrl, expect.objectContaining({ cache: 'no-store' }))
+
+    unmount()
+  })
+
+  it('polls OpenSky periodically', async () => {
+    // Use real timers with a short interval; jsdom's timer mocks do not reliably
+    // control window.setTimeout in this environment.
+    function Harness() {
+      const passEvents = useOpenSkyPolling({ site, intervalMs: 20 })
+      return <span data-testid="event-count">{passEvents.length}</span>
+    }
+
+    const { unmount } = render(<Harness />)
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+    })
+
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2)
+    })
 
     unmount()
   })
