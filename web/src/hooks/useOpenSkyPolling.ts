@@ -61,7 +61,7 @@ export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions
         }
       } finally {
         if (!controller.signal.aborted) {
-          timerId = window.setTimeout(pollOpenSky, intervalMs)
+          timerId = window.setTimeout(pollOpenSky, Math.max(intervalMs, 1000))
         }
       }
     }
