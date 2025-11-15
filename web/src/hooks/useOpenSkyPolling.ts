@@ -28,7 +28,7 @@ export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions
   useEffect(() => {
     const controller = new AbortController()
     const requestUrl = buildStatesUrl(site)
-    let timerId: ReturnType<typeof window.setTimeout> | null = null
+    let timerId: number | null = null
 
     const pollOpenSky = async () => {
       try {
