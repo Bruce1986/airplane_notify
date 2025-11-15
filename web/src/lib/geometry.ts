@@ -87,19 +87,22 @@ export function computePassEvent(site: ObservationSite, plane: PlaneState): Pass
   }
 }
 
+function hasGeodeticCoordinates(
+  state: StateVector
+): state is StateVector & GeodeticPoint {
+  return state.latitude != null && state.longitude != null
+}
+
 export function normalizeStateVector(
   site: ObservationSite,
   state: StateVector
 ): PlaneState | null {
-  if (state.latitude == null || state.longitude == null) return null
+  if (!hasGeodeticCoordinates(state)) return null
   const altitude = state.geoAltitude ?? state.baroAltitude ?? null
   return {
     id: state.icao24,
     callsign: state.callsign?.trim() || null,
-    ...geodeticToEnu(site, {
-      latitude: state.latitude,
-      longitude: state.longitude
-    }),
+    ...geodeticToEnu(site, state),
     v: state.velocity,
     trackRad: state.trueTrack == null ? null : toRadians(state.trueTrack),
     h: altitude

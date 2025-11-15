@@ -84,6 +84,9 @@
 
 ### 🤖 AI 助手的日誌
 
+- **2025/11/27**
+  - ✅ 完成：依最新 Gemini 建議增補座標型別守門 helper，讓 normalizeStateVector 能直接傳入已縮小型別的 state 給 geodeticToEnu，維持程式簡潔並保持型別安全。
+
 - **2025/11/26**
   - ✅ 完成：依 Gemini 建議改為在 evaluateAlertStatus 中檢查 idle 階段並於異常狀況拋出錯誤，確保告警邏輯及時暴露回歸。
 
