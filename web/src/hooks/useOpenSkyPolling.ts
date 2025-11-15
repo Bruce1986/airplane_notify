@@ -24,10 +24,8 @@ export interface UseOpenSkyPollingResult {
 const MIN_INTERVAL_MS = 1000
 
 function resolveNextInterval(baseIntervalMs: number, error: Error | null): number {
-  if (error instanceof OpenSkyRateLimitError) {
-    return Math.max(baseIntervalMs, error.retryAfterMs, MIN_INTERVAL_MS)
-  }
-  return Math.max(baseIntervalMs, MIN_INTERVAL_MS)
+  const rateLimitDelay = error instanceof OpenSkyRateLimitError ? error.retryAfterMs : 0
+  return Math.max(baseIntervalMs, rateLimitDelay, MIN_INTERVAL_MS)
 }
 
 export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions): UseOpenSkyPollingResult {

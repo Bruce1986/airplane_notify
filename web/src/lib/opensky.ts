@@ -35,8 +35,7 @@ export class OpenSkyRateLimitError extends Error {
   }
 
   static fromResponse(response: Response): OpenSkyRateLimitError {
-    const retryAfterHeader =
-      typeof response.headers?.get === 'function' ? response.headers.get('Retry-After') : null
+    const retryAfterHeader = response.headers.get('Retry-After')
 
     let retryAfterMs = Number.NaN
     if (retryAfterHeader) {
