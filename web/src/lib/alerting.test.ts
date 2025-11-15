@@ -32,9 +32,9 @@ describe('evaluateAlertStatus', () => {
   })
 
   it('categorizes events by ETA thresholds', () => {
-    expect(evaluateAlertStatus(createEvent({ eta: 60 })).stage).toBe('monitor')
-    expect(evaluateAlertStatus(createEvent({ eta: 25 })).stage).toBe('warning')
-    expect(evaluateAlertStatus(createEvent({ eta: 8 })).stage).toBe('critical')
+    expect(evaluateAlertStatus(createEvent({ eta: 360 })).stage).toBe('monitor')
+    expect(evaluateAlertStatus(createEvent({ eta: 180 })).stage).toBe('warning')
+    expect(evaluateAlertStatus(createEvent({ eta: 90 })).stage).toBe('critical')
     expect(evaluateAlertStatus(createEvent({ eta: 0 })).stage).toBe('active')
   })
 

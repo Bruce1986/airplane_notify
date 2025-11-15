@@ -7,8 +7,8 @@ const site: ObservationSite = {
   name: 'Test Site',
   latitude: 0,
   longitude: 0,
-  radius: 700,
-  maxAltitude: 3000,
+  radius: 25_000,
+  maxAltitude: 6000,
   noiseThresholds: {
     high: 1200,
     medium: 2500
@@ -45,8 +45,8 @@ function createStateVector(
 describe('processPassEvents', () => {
   it('normalizes state vectors and sorts valid pass events by ETA', () => {
     const vectors: StateVector[] = [
-      createStateVector('one', -800, 0, { velocity: 90, trueTrack: 90 }),
-      createStateVector('two', -500, 0, { velocity: 60, trueTrack: 90 }),
+      createStateVector('one', -52_000, 0, { velocity: 90, trueTrack: 90 }),
+      createStateVector('two', -58_000, 0, { velocity: 60, trueTrack: 90 }),
       {
         icao24: 'invalid',
         callsign: null,
@@ -64,13 +64,13 @@ describe('processPassEvents', () => {
     expect(events).toHaveLength(2)
     expect(events.every((event) => event.ok)).toBe(true)
     expect(events[0].eta).toBeLessThanOrEqual(events[1].eta)
-    expect(events.map((event) => event.plane.id)).toEqual(['two', 'one'])
+    expect(events.map((event) => event.plane.id)).toEqual(['one', 'two'])
   })
 })
 
 describe('processStateVector', () => {
   it('returns a pass event when the plane produces an ok result', () => {
-    const state = createStateVector('ok', -500, 0, { velocity: 85, trueTrack: 90 })
+    const state = createStateVector('ok', -55_000, 0, { velocity: 85, trueTrack: 90 })
 
     const event = processStateVector(site, state)
 

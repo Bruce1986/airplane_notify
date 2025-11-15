@@ -112,9 +112,10 @@ export function normalizeStateVector(
 }
 
 export function geodeticToEnu(site: ObservationSite, point: GeodeticPoint) {
-  // NOTE: This uses an equirectangular projection that is sufficiently precise
-  // within the ~700 m operating radius of the MVP. For larger regions or
-  // high-precision needs, replace with a more exact geodetic conversion.
+  // NOTE: This uses an equirectangular projection that remains precise within
+  // the few-dozen-kilometer radius we observe. For substantially larger
+  // regions or high-precision needs, replace with a more exact geodetic
+  // conversion.
   const lat0 = toRadians(site.latitude)
   const lon0 = toRadians(site.longitude)
   const lat = toRadians(point.latitude)

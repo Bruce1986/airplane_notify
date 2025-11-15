@@ -16,8 +16,8 @@ export interface AlertStatus {
 }
 
 const DEFAULT_THRESHOLDS: AlertThresholds = {
-  warning: 30,
-  critical: 10
+  warning: 300,
+  critical: 120
 }
 
 export function evaluateAlertStatus(

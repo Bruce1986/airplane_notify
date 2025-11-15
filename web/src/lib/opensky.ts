@@ -3,6 +3,7 @@ import type { ObservationSite, StateVector } from './types'
 const METERS_PER_DEGREE_LAT = 111_320
 const MIN_LON_SCALE = 1e-6
 const OPENSKY_STATES_API_URL = 'https://opensky-network.org/api/states/all'
+const DEFAULT_RATE_LIMIT_DELAY_MS = 60_000
 
 // For field indices, see OpenSky REST API documentation:
 // https://openskynetwork.github.io/opensky-api/rest.html#all-state-vectors
@@ -20,6 +21,37 @@ const StateVectorIdx = {
 export interface OpenSkyStatesResponse {
   time: number
   states: unknown[] | null
+}
+
+export class OpenSkyRateLimitError extends Error {
+  readonly retryAfterMs: number
+
+  constructor(retryAfterMs: number) {
+    const safeDelay = Math.max(0, Number.isFinite(retryAfterMs) ? retryAfterMs : 0)
+    const enforcedDelay = Math.max(safeDelay, DEFAULT_RATE_LIMIT_DELAY_MS)
+    super(`OpenSky 匿名 API 頻率限制，約 ${Math.ceil(enforcedDelay / 1000)} 秒後自動重試`)
+    this.name = 'OpenSkyRateLimitError'
+    this.retryAfterMs = enforcedDelay
+  }
+
+  static fromResponse(response: Response): OpenSkyRateLimitError {
+    const retryAfterHeader = response.headers.get('Retry-After')
+
+    let retryAfterMs = Number.NaN
+    if (retryAfterHeader) {
+      const normalizedHeader = retryAfterHeader.trim()
+      if (/^\d+$/.test(normalizedHeader)) {
+        retryAfterMs = Number(normalizedHeader) * 1000
+      } else {
+        const parsedDate = Date.parse(normalizedHeader)
+        if (!Number.isNaN(parsedDate)) {
+          retryAfterMs = parsedDate - Date.now()
+        }
+      }
+    }
+
+    return new OpenSkyRateLimitError(retryAfterMs)
+  }
 }
 
 export function buildStatesUrl(site: ObservationSite): string {
