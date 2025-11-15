@@ -59,6 +59,12 @@ describe('evaluateAlertStatus', () => {
     const status = evaluateAlertStatus(createEvent({ eta: 45 }))
     expect(status.message).toContain('噪音等級：中')
   })
+
+  it('reports the remaining duration for active stage alerts', () => {
+    const status = evaluateAlertStatus(createEvent({ eta: -3 }))
+    expect(status.stage).toBe('active')
+    expect(status.message).toContain('剩餘約 27 秒 離開半徑')
+  })
 })
 
 describe('alerting helpers', () => {

@@ -75,11 +75,13 @@ function describeStage(
   const levelText = event.level ?? '預估中'
 
   switch (stage) {
-    case 'active':
+    case 'active': {
+      const remainingTimeText = formatSeconds(event.duration + event.eta)
       return {
         title: '注意：飛機正在通過！',
-        message: `${planeName} 剩餘約 ${durationText} 離開半徑，噪音等級：${levelText}。`
+        message: `${planeName} 剩餘約 ${remainingTimeText} 離開半徑，噪音等級：${levelText}。`
       }
+    }
     case 'critical':
       return {
         title: `演出模式：T-${thresholds.critical} 秒內提醒`,
