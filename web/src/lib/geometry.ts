@@ -14,6 +14,8 @@ const DEFAULT_NOISE_THRESHOLDS: NoiseThresholds = {
   medium: 2500
 }
 
+type GeodeticPoint = { latitude: number; longitude: number }
+
 function createFailedEvent(plane: PlaneState, dmin: number = Infinity): PassEvent {
   return {
     plane,
@@ -108,8 +110,6 @@ export function normalizeStateVector(
     h: altitude
   }
 }
-
-type GeodeticPoint = { latitude: number; longitude: number }
 
 export function geodeticToEnu(site: ObservationSite, point: GeodeticPoint) {
   // NOTE: This uses an equirectangular projection that is sufficiently precise

@@ -84,6 +84,9 @@
 
 ### 🤖 AI 助手的日誌
 
+- **2025/11/28**
+  - ✅ 完成：依 Gemini 建議上移 GeodeticPoint 型別宣告以靠近使用處，提升 geometry 模組型別守門邏輯的可讀性。
+
 - **2025/11/27**
   - ✅ 完成：依最新 Gemini 建議增補座標型別守門 helper，讓 normalizeStateVector 能直接傳入已縮小型別的 state 給 geodeticToEnu，維持程式簡潔並保持型別安全。
 
