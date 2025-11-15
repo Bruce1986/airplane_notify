@@ -13,6 +13,14 @@ export interface UseOpenSkyPollingResult {
   error: Error | null
 }
 
+/**
+ * 定期輪詢 OpenSky Network API 以取得航機狀態，並將其整理成通過事件清單。
+ *
+ * @param options 輪詢設定。
+ * @param options.site 觀測站點。請確保此物件於元件外部定義或以 `useMemo` 穩定化，避免在重新渲染時意外重啟輪詢。
+ * @param options.intervalMs 輪詢間隔（毫秒）。
+ * @returns 目前的通過事件與最後一次輪詢的錯誤（若有）。
+ */
 export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions): UseOpenSkyPollingResult {
   const [passEvents, setPassEvents] = useState<PassEvent[]>([])
   const [error, setError] = useState<Error | null>(null)
