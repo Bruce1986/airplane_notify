@@ -3,7 +3,8 @@ import './App.css'
 import { processPassEvents } from './lib/pass-processing'
 import { evaluateAlertStatus } from './lib/alerting'
 import { formatSeconds } from './lib/formatters'
-import { demoSite, sampleStateVectors } from './sample-data'
+import { buildStatesUrl, parseOpenSkyStates } from './lib/opensky'
+import { observationSite, POLL_INTERVAL_MS } from './site-config'
 import type { PassEvent } from './lib/types'
 
 function formatDistance(value: number): string {
@@ -44,13 +45,44 @@ export function PassItem({ event, isPrimary }: PassItemProps) {
 }
 
 export default function App() {
-  const [demoPasses, setDemoPasses] = useState<PassEvent[]>([])
+  const [passEvents, setPassEvents] = useState<PassEvent[]>([])
 
   useEffect(() => {
-    const passes = processPassEvents(demoSite, sampleStateVectors)
-    startTransition(() => {
-      setDemoPasses(passes)
-    })
+    let cancelled = false
+    const requestUrl = buildStatesUrl(observationSite)
+
+    async function pollOpenSky() {
+      try {
+        const response = await fetch(requestUrl, { cache: 'no-store' })
+        if (!response.ok) {
+          throw new Error(`OpenSky request failed: ${response.status}`)
+        }
+
+        const data = await response.json()
+        const stateVectors = parseOpenSkyStates(data)
+        const passes = processPassEvents(observationSite, stateVectors)
+
+        if (!cancelled) {
+          startTransition(() => {
+            setPassEvents(passes)
+          })
+        }
+      } catch (error) {
+        console.error('Failed to load OpenSky states', error)
+        if (!cancelled) {
+          startTransition(() => {
+            setPassEvents([])
+          })
+        }
+      }
+    }
+
+    pollOpenSky()
+    const intervalId = window.setInterval(pollOpenSky, POLL_INTERVAL_MS)
+    return () => {
+      cancelled = true
+      window.clearInterval(intervalId)
+    }
   }, [])
 
   return (
@@ -59,18 +91,18 @@ export default function App() {
         <p className="pill">MVP Sprint · W1 Prototype</p>
         <h1>飛機頭頂預警 — 即時預報面板</h1>
         <p>
-          位置：{demoSite.name}（半徑 {demoSite.radius} m / 限制高度 {demoSite.maxAltitude} m）
+          位置：{observationSite.name}（半徑 {observationSite.radius} m / 限制高度 {observationSite.maxAltitude} m）
         </p>
       </header>
 
-      <AlertBanner primaryPass={demoPasses[0] ?? null} />
+      <AlertBanner primaryPass={passEvents[0] ?? null} />
 
       <div className="dashboard-grid">
         <section className="card">
           <h2>即將進入半徑的航機</h2>
           <ul className="pass-list">
-            {demoPasses.length === 0 && <li>目前沒有預警中的航機。</li>}
-            {demoPasses.map((event, index) => (
+            {passEvents.length === 0 && <li>目前沒有預警中的航機。</li>}
+            {passEvents.map((event, index) => (
               <PassItem key={event.plane.id} event={event} isPrimary={index === 0} />
             ))}
           </ul>
