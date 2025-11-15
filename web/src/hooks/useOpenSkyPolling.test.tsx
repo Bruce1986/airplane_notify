@@ -174,6 +174,49 @@ describe('useOpenSkyPolling', () => {
     unmount()
   })
 
+  it('parses Retry-After date headers when backing off', async () => {
+    const now = Date.parse('2024-01-01T00:00:00Z')
+    const dateNowSpy = vi.spyOn(Date, 'now').mockReturnValue(now)
+    const retryAfterDate = new Date(now + 90_000).toUTCString()
+
+    const rateLimitResponse = new Response(null, {
+      status: 429,
+      headers: { 'Retry-After': retryAfterDate }
+    })
+
+    fetchMock.mockResolvedValueOnce(rateLimitResponse)
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => responsePayload,
+      headers: new Headers()
+    } as Response)
+
+    function Harness() {
+      const { error, passEvents } = useOpenSkyPolling({ site, intervalMs: 1000 })
+      return (
+        <>
+          <span data-testid="error">{error ? error.message : 'none'}</span>
+          <span data-testid="event-count">{passEvents.length}</span>
+        </>
+      )
+    }
+
+    const { unmount } = render(<Harness />)
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('error').textContent).toContain('頻率限制')
+      expect(screen.getByTestId('error').textContent).toContain('90 秒後')
+      expect(screen.getByTestId('event-count').textContent).toBe('0')
+    })
+
+    dateNowSpy.mockRestore()
+    unmount()
+  })
+
   it('calculates the next interval based on error type', () => {
     const { resolveNextInterval } = __testables
     const baseInterval = 500

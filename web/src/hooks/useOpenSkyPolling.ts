@@ -51,11 +51,11 @@ export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions
             const retryAfterHeader = typeof response.headers?.get === 'function' ? response.headers.get('Retry-After') : null
             let retryAfterMs = Number.NaN
             if (retryAfterHeader) {
-              const parsedSeconds = Number.parseFloat(retryAfterHeader)
-              if (Number.isFinite(parsedSeconds)) {
-                retryAfterMs = parsedSeconds * 1000
+              const normalizedHeader = retryAfterHeader.trim()
+              if (/^\d+$/.test(normalizedHeader)) {
+                retryAfterMs = Number(normalizedHeader) * 1000
               } else {
-                const parsedDate = Date.parse(retryAfterHeader)
+                const parsedDate = Date.parse(normalizedHeader)
                 if (!Number.isNaN(parsedDate)) {
                   retryAfterMs = parsedDate - Date.now()
                 }
