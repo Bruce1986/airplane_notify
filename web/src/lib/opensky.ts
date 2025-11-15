@@ -57,7 +57,7 @@ function normalizeStateRow(row: unknown): StateVector | null {
 
   const typedRow = row as (string | number | null)[]
   const icao24 = typedRow[StateVectorIdx.ICAO24]
-  if (typeof icao24 !== 'string') return null
+  if (typeof icao24 !== 'string' || !icao24) return null
 
   const callsign = typedRow[StateVectorIdx.CALLSIGN]
   const getNumericField = (index: number): number | null => {
