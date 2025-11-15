@@ -34,12 +34,17 @@ export function evaluateAlertStatus(
     }
   }
 
-  const stage = determineStage(event, normalized)
-  const { title, message } = describeStage(
-    stage as Exclude<AlertStage, 'idle'>,
-    event,
-    normalized
-  )
+  const stage: AlertStage = determineStage(event, normalized)
+  if (stage === 'idle') {
+    return {
+      stage,
+      title: '目前沒有預警中的航機',
+      message: '等待 OpenSky 更新。',
+      event
+    }
+  }
+
+  const { title, message } = describeStage(stage, event, normalized)
   return {
     stage,
     title,
@@ -57,14 +62,6 @@ function normalizeThresholds(thresholds: AlertThresholds): AlertThresholds {
   }
 }
 
-function determineStage(
-  event: null,
-  thresholds: AlertThresholds
-): 'idle'
-function determineStage(
-  event: PassEvent,
-  thresholds: AlertThresholds
-): Exclude<AlertStage, 'idle'>
 function determineStage(
   event: PassEvent | null,
   thresholds: AlertThresholds

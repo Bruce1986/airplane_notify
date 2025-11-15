@@ -91,14 +91,15 @@ export function normalizeStateVector(
   site: ObservationSite,
   state: StateVector
 ): PlaneState | null {
-  const { latitude, longitude } = state
-  if (latitude == null || longitude == null) return null
+  if (state.latitude == null || state.longitude == null) return null
   const altitude = state.geoAltitude ?? state.baroAltitude ?? null
-  const coordinates: GeodeticPoint = { latitude, longitude }
   return {
     id: state.icao24,
     callsign: state.callsign?.trim() || null,
-    ...geodeticToEnu(site, coordinates),
+    ...geodeticToEnu(site, {
+      latitude: state.latitude,
+      longitude: state.longitude
+    }),
     v: state.velocity,
     trackRad: state.trueTrack == null ? null : toRadians(state.trueTrack),
     h: altitude
