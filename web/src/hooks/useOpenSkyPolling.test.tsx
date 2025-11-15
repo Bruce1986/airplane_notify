@@ -1,16 +1,16 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useOpenSkyPolling } from './useOpenSkyPolling'
+import { useOpenSkyPolling, __testables } from './useOpenSkyPolling'
 import type { ObservationSite } from '../lib/types'
-import { buildStatesUrl } from '../lib/opensky'
+import { buildStatesUrl, OpenSkyRateLimitError } from '../lib/opensky'
 
 describe('useOpenSkyPolling', () => {
   const site: ObservationSite = {
     name: 'Test Field',
     latitude: 25,
     longitude: 121,
-    radius: 700,
-    maxAltitude: 3000
+    radius: 25_000,
+    maxAltitude: 6000
   }
 
   const responsePayload = {
@@ -42,7 +42,8 @@ describe('useOpenSkyPolling', () => {
     originalFetch = global.fetch
     fetchMock.mockResolvedValue({
       ok: true,
-      json: async () => responsePayload
+      json: async () => responsePayload,
+      headers: new Headers()
     } as Response)
     // @ts-expect-error allow overriding fetch for testing
     global.fetch = fetchMock
@@ -95,9 +96,12 @@ describe('useOpenSkyPolling', () => {
       expect(fetchMock).toHaveBeenCalledTimes(1)
     })
 
-    await waitFor(() => {
-      expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2)
-    })
+    await waitFor(
+      () => {
+        expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2)
+      },
+      { timeout: 3000 }
+    )
 
     unmount()
   })
@@ -126,5 +130,58 @@ describe('useOpenSkyPolling', () => {
     expect(screen.getByTestId('event-count').textContent).toBe('0')
 
     unmount()
+  })
+
+  it('backs off when hitting OpenSky rate limits', async () => {
+    const rateLimitResponse = new Response(null, {
+      status: 429,
+      headers: { 'Retry-After': '15' }
+    })
+
+    fetchMock.mockResolvedValueOnce(rateLimitResponse)
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => responsePayload,
+      headers: new Headers()
+    } as Response)
+
+    function Harness() {
+      const { error, passEvents } = useOpenSkyPolling({ site, intervalMs: 1000 })
+      return (
+        <>
+          <span data-testid="error">{error ? error.message : 'none'}</span>
+          <span data-testid="event-count">{passEvents.length}</span>
+        </>
+      )
+    }
+
+    const { unmount } = render(<Harness />)
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('error').textContent).toContain('頻率限制')
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('error').textContent).toContain('頻率限制')
+      expect(screen.getByTestId('error').textContent).toContain('60 秒後')
+      expect(screen.getByTestId('event-count').textContent).toBe('0')
+    })
+
+    unmount()
+  })
+
+  it('calculates the next interval based on error type', () => {
+    const { resolveNextInterval } = __testables
+    const baseInterval = 500
+    const nextInterval = resolveNextInterval(baseInterval, null)
+    expect(nextInterval).toBeGreaterThanOrEqual(1000)
+
+    const rateLimitError = new OpenSkyRateLimitError(30_000)
+    const rateLimitInterval = resolveNextInterval(5_000, rateLimitError)
+    expect(rateLimitInterval).toBeGreaterThanOrEqual(rateLimitError.retryAfterMs)
   })
 })

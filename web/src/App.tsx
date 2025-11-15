@@ -1,9 +1,10 @@
 import './App.css'
 import { evaluateAlertStatus } from './lib/alerting'
+import type { AlertThresholds } from './lib/alerting'
 import { formatSeconds } from './lib/formatters'
 import type { PassEvent } from './lib/types'
 import { useOpenSkyPolling } from './hooks/useOpenSkyPolling'
-import { observationSite, POLL_INTERVAL_MS } from './site-config'
+import { observationSite, POLL_INTERVAL_MS, ALERT_THRESHOLDS } from './site-config'
 
 function formatDistance(value: number): string {
   return `${value.toFixed(0)} m`
@@ -58,7 +59,7 @@ export default function App() {
         </p>
       </header>
 
-      <AlertBanner primaryPass={livePassEvents[0] ?? null} />
+      <AlertBanner primaryPass={livePassEvents[0] ?? null} thresholds={ALERT_THRESHOLDS} />
 
       <div className="dashboard-grid">
         <section className="card">
@@ -95,10 +96,11 @@ export default function App() {
 
 interface AlertBannerProps {
   primaryPass: PassEvent | null
+  thresholds?: AlertThresholds
 }
 
-function AlertBanner({ primaryPass }: AlertBannerProps) {
-  const status = evaluateAlertStatus(primaryPass)
+function AlertBanner({ primaryPass, thresholds }: AlertBannerProps) {
+  const status = evaluateAlertStatus(primaryPass, thresholds)
 
   return (
     <section className={`alert-banner alert-stage-${status.stage}`}>

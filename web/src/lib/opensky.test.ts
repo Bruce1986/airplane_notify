@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildStatesUrl, parseOpenSkyStates, __testables } from './opensky'
+import { buildStatesUrl, parseOpenSkyStates, OpenSkyRateLimitError, __testables } from './opensky'
 import type { ObservationSite } from './types'
 
 describe('buildStatesUrl', () => {
@@ -8,8 +8,8 @@ describe('buildStatesUrl', () => {
       name: 'Test Site',
       latitude: 25.0721,
       longitude: 121.5222,
-      radius: 700,
-      maxAltitude: 3000
+      radius: 25_000,
+      maxAltitude: 6000
     }
 
     const url = new URL(buildStatesUrl(site))
@@ -101,5 +101,14 @@ describe('parseOpenSkyStates', () => {
     expect(parseOpenSkyStates(null)).toEqual([])
     expect(parseOpenSkyStates({ states: null })).toEqual([])
     expect(parseOpenSkyStates({ states: ['invalid'] })).toEqual([])
+  })
+})
+
+describe('OpenSkyRateLimitError', () => {
+  it('enforces a minimum retry delay and formats a helpful message', () => {
+    const error = new OpenSkyRateLimitError(15_000)
+    expect(error.retryAfterMs).toBeGreaterThanOrEqual(60_000)
+    expect(error.message).toContain('60 秒後')
+    expect(error.name).toBe('OpenSkyRateLimitError')
   })
 })

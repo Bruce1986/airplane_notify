@@ -1,5 +1,5 @@
 import { startTransition, useEffect, useState } from 'react'
-import { buildStatesUrl, parseOpenSkyStates } from '../lib/opensky'
+import { buildStatesUrl, parseOpenSkyStates, OpenSkyRateLimitError } from '../lib/opensky'
 import { processPassEvents } from '../lib/pass-processing'
 import type { ObservationSite, PassEvent } from '../lib/types'
 
@@ -21,6 +21,15 @@ export interface UseOpenSkyPollingResult {
  * @param options.intervalMs 輪詢間隔（毫秒）。
  * @returns 目前的通過事件與最後一次輪詢的錯誤（若有）。
  */
+const MIN_INTERVAL_MS = 1000
+
+function resolveNextInterval(baseIntervalMs: number, error: Error | null): number {
+  if (error instanceof OpenSkyRateLimitError) {
+    return Math.max(baseIntervalMs, error.retryAfterMs, MIN_INTERVAL_MS)
+  }
+  return Math.max(baseIntervalMs, MIN_INTERVAL_MS)
+}
+
 export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions): UseOpenSkyPollingResult {
   const [passEvents, setPassEvents] = useState<PassEvent[]>([])
   const [error, setError] = useState<Error | null>(null)
@@ -29,6 +38,7 @@ export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions
     const controller = new AbortController()
     const requestUrl = buildStatesUrl(site)
     let timerId: number | null = null
+    let nextInterval = resolveNextInterval(intervalMs, null)
 
     const pollOpenSky = async () => {
       try {
@@ -37,6 +47,22 @@ export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions
           signal: controller.signal
         })
         if (!response.ok) {
+          if (response.status === 429) {
+            const retryAfterHeader = typeof response.headers?.get === 'function' ? response.headers.get('Retry-After') : null
+            let retryAfterMs = Number.NaN
+            if (retryAfterHeader) {
+              const parsedSeconds = Number.parseFloat(retryAfterHeader)
+              if (Number.isFinite(parsedSeconds)) {
+                retryAfterMs = parsedSeconds * 1000
+              } else {
+                const parsedDate = Date.parse(retryAfterHeader)
+                if (!Number.isNaN(parsedDate)) {
+                  retryAfterMs = parsedDate - Date.now()
+                }
+              }
+            }
+            throw new OpenSkyRateLimitError(retryAfterMs)
+          }
           throw new Error(`OpenSky request failed: ${response.status}`)
         }
 
@@ -50,10 +76,12 @@ export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions
             setError(null)
           })
         }
+        nextInterval = resolveNextInterval(intervalMs, null)
       } catch (error) {
         if (!controller.signal.aborted) {
           console.error('Failed to load OpenSky states', error)
           const normalizedError = error instanceof Error ? error : new Error(String(error))
+          nextInterval = resolveNextInterval(intervalMs, normalizedError)
           startTransition(() => {
             setPassEvents([])
             setError(normalizedError)
@@ -61,7 +89,7 @@ export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions
         }
       } finally {
         if (!controller.signal.aborted) {
-          timerId = window.setTimeout(pollOpenSky, Math.max(intervalMs, 1000))
+          timerId = window.setTimeout(pollOpenSky, nextInterval)
         }
       }
     }
@@ -78,3 +106,5 @@ export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions
 
   return { passEvents, error }
 }
+
+export const __testables = { resolveNextInterval }

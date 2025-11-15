@@ -6,8 +6,8 @@ const site: ObservationSite = {
   name: 'Test Site',
   latitude: 0,
   longitude: 0,
-  radius: 700,
-  maxAltitude: 3000,
+  radius: 25_000,
+  maxAltitude: 6000,
   noiseThresholds: {
     high: 1200,
     medium: 2500
@@ -18,7 +18,7 @@ function makePlane(overrides: Partial<PlaneState> = {}): PlaneState {
   return {
     id: 'abc',
     callsign: null,
-    x: -800,
+    x: -52_000,
     y: 0,
     v: 90,
     trackRad: Math.PI / 2,
@@ -31,8 +31,8 @@ describe('computePassEvent', () => {
   it('flags approaching planes within radius and altitude', () => {
     const event = computePassEvent(site, makePlane())
     expect(event.ok).toBe(true)
-    expect(event.eta).toBeCloseTo(1.11, 2)
-    expect(event.duration).toBeCloseTo(15.56, 2)
+    expect(event.eta).toBeCloseTo(300, 2)
+    expect(event.duration).toBeCloseTo(555.56, 2)
     expect(event.level).toBe('高')
   })
 
@@ -51,19 +51,19 @@ describe('computePassEvent', () => {
   })
 
   it('returns Infinity eta when plane misses radius', () => {
-    const event = computePassEvent(site, makePlane({ y: 1000 }))
+    const event = computePassEvent(site, makePlane({ y: 30_000 }))
     expect(event.ok).toBe(false)
     expect(event.eta).toBe(Infinity)
     expect(event.duration).toBe(0)
   })
 
   it('returns false when altitude exceeds max', () => {
-    const event = computePassEvent(site, makePlane({ h: 5000 }))
+    const event = computePassEvent(site, makePlane({ h: 7000 }))
     expect(event.ok).toBe(false)
   })
 
   it('handles planes already inside the radius', () => {
-    const event = computePassEvent(site, makePlane({ x: -200 }))
+    const event = computePassEvent(site, makePlane({ x: -20_000 }))
     expect(event.ok).toBe(true)
     expect(event.eta).toBe(0)
     expect(event.duration).toBeGreaterThan(0)
