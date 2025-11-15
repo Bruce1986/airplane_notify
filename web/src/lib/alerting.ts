@@ -35,7 +35,11 @@ export function evaluateAlertStatus(
   }
 
   const stage = determineStage(event, normalized)
-  const { title, message } = describeStage(stage, event, normalized)
+  const { title, message } = describeStage(
+    stage as Exclude<AlertStage, 'idle'>,
+    event,
+    normalized
+  )
   return {
     stage,
     title,
