@@ -41,8 +41,8 @@ export interface StateVector {
   callsign: string | null
   latitude: number | null
   longitude: number | null
-  geo_altitude: number | null
-  baro_altitude: number | null
+  geoAltitude: number | null
+  baroAltitude: number | null
   velocity: number | null
-  true_track: number | null
+  trueTrack: number | null
 }

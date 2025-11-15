@@ -41,6 +41,8 @@ export function parseOpenSkyStates(payload: unknown): StateVector[] {
 function normalizeStateRow(row: unknown): StateVector | null {
   if (!Array.isArray(row)) return null
 
+  // For field indices, see OpenSky REST API documentation:
+  // https://openskynetwork.github.io/opensky-api/rest.html#all-state-vectors
   const [
     icao24,
     callsign,
@@ -65,10 +67,10 @@ function normalizeStateRow(row: unknown): StateVector | null {
     callsign: typeof callsign === 'string' ? callsign.trim() || null : null,
     latitude: typeof latitude === 'number' ? latitude : null,
     longitude: typeof longitude === 'number' ? longitude : null,
-    geo_altitude: typeof geoAltitude === 'number' ? geoAltitude : null,
-    baro_altitude: typeof baroAltitude === 'number' ? baroAltitude : null,
+    geoAltitude: typeof geoAltitude === 'number' ? geoAltitude : null,
+    baroAltitude: typeof baroAltitude === 'number' ? baroAltitude : null,
     velocity: typeof velocity === 'number' ? velocity : null,
-    true_track: typeof trueTrack === 'number' ? trueTrack : null
+    trueTrack: typeof trueTrack === 'number' ? trueTrack : null
   }
 }
 

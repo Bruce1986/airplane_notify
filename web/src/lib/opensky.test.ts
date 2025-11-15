@@ -83,10 +83,10 @@ describe('parseOpenSkyStates', () => {
       callsign: 'EVA123',
       longitude: 121.55,
       latitude: 25.08,
-      baro_altitude: 500,
-      geo_altitude: 520,
+      baroAltitude: 500,
+      geoAltitude: 520,
       velocity: 120,
-      true_track: 90
+      trueTrack: 90
     })
 
     expect(result[1]).toMatchObject({

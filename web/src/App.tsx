@@ -48,12 +48,16 @@ export default function App() {
   const [passEvents, setPassEvents] = useState<PassEvent[]>([])
 
   useEffect(() => {
-    let cancelled = false
+    const controller = new AbortController()
     const requestUrl = buildStatesUrl(observationSite)
+    let timerId: ReturnType<typeof window.setTimeout> | null = null
 
-    async function pollOpenSky() {
+    const pollOpenSky = async () => {
       try {
-        const response = await fetch(requestUrl, { cache: 'no-store' })
+        const response = await fetch(requestUrl, {
+          cache: 'no-store',
+          signal: controller.signal
+        })
         if (!response.ok) {
           throw new Error(`OpenSky request failed: ${response.status}`)
         }
@@ -62,26 +66,32 @@ export default function App() {
         const stateVectors = parseOpenSkyStates(data)
         const passes = processPassEvents(observationSite, stateVectors)
 
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
           startTransition(() => {
             setPassEvents(passes)
           })
         }
       } catch (error) {
-        console.error('Failed to load OpenSky states', error)
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
+          console.error('Failed to load OpenSky states', error)
           startTransition(() => {
             setPassEvents([])
           })
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          timerId = window.setTimeout(pollOpenSky, POLL_INTERVAL_MS)
         }
       }
     }
 
     pollOpenSky()
-    const intervalId = window.setInterval(pollOpenSky, POLL_INTERVAL_MS)
+
     return () => {
-      cancelled = true
-      window.clearInterval(intervalId)
+      controller.abort()
+      if (timerId !== null) {
+        window.clearTimeout(timerId)
+      }
     }
   }, [])
 
