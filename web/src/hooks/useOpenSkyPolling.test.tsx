@@ -163,10 +163,6 @@ describe('useOpenSkyPolling', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('error').textContent).toContain('頻率限制')
-    })
-
-    await waitFor(() => {
-      expect(screen.getByTestId('error').textContent).toContain('頻率限制')
       expect(screen.getByTestId('error').textContent).toContain('60 秒後')
       expect(screen.getByTestId('event-count').textContent).toBe('0')
     })
