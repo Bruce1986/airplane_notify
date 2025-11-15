@@ -1,13 +1,10 @@
 import { startTransition, useEffect, useState } from 'react'
 import './App.css'
 import { processPassEvents } from './lib/pass-processing'
+import { evaluateAlertStatus } from './lib/alerting'
+import { formatSeconds } from './lib/formatters'
 import { demoSite, sampleStateVectors } from './sample-data'
 import type { PassEvent } from './lib/types'
-
-function formatSeconds(value: number): string {
-  if (!Number.isFinite(value)) return '—'
-  return `${Math.round(value)}s`
-}
 
 function formatDistance(value: number): string {
   return `${value.toFixed(0)} m`
@@ -15,6 +12,35 @@ function formatDistance(value: number): string {
 
 function formatLevel(level: string | null): string {
   return level ?? '預估中'
+}
+
+export interface PassItemProps {
+  event: PassEvent
+  isPrimary: boolean
+}
+
+export function PassItem({ event, isPrimary }: PassItemProps) {
+  const isActive = event.eta <= 0
+  const etaLabel = isActive ? '通過中' : `倒數：${formatSeconds(event.eta)}`
+  const durationLabel = isActive
+    ? `剩餘：${formatSeconds(event.duration + event.eta)}`
+    : `預估通過：${formatSeconds(event.duration)}`
+
+  const classNames = ['pass-item']
+  if (isPrimary) classNames.push('pass-item--primary')
+  if (isActive) classNames.push('pass-item--active')
+
+  return (
+    <li className={classNames.join(' ')}>
+      <strong>{event.plane.callsign ?? event.plane.id}</strong>
+      <div className="pass-meta">
+        <span>{etaLabel}</span>
+        <span>{durationLabel}</span>
+        <span>最近距離：{formatDistance(event.dmin)}</span>
+        <span>噪音等級：{formatLevel(event.level)}</span>
+      </div>
+    </li>
+  )
 }
 
 export default function App() {
@@ -37,21 +63,15 @@ export default function App() {
         </p>
       </header>
 
+      <AlertBanner primaryPass={demoPasses[0] ?? null} />
+
       <div className="dashboard-grid">
         <section className="card">
           <h2>即將進入半徑的航機</h2>
           <ul className="pass-list">
             {demoPasses.length === 0 && <li>目前沒有預警中的航機。</li>}
-            {demoPasses.map((event) => (
-              <li key={event.plane.id} className="pass-item">
-                <strong>{event.plane.callsign ?? event.plane.id}</strong>
-                <div className="pass-meta">
-                  <span>倒數：{formatSeconds(event.eta)}</span>
-                  <span>停留：{formatSeconds(event.duration)}</span>
-                  <span>最近距離：{formatDistance(event.dmin)}</span>
-                  <span>噪音等級：{formatLevel(event.level)}</span>
-                </div>
-              </li>
+            {demoPasses.map((event, index) => (
+              <PassItem key={event.plane.id} event={event} isPrimary={index === 0} />
             ))}
           </ul>
         </section>
@@ -74,5 +94,20 @@ export default function App() {
         </section>
       </div>
     </div>
+  )
+}
+
+interface AlertBannerProps {
+  primaryPass: PassEvent | null
+}
+
+function AlertBanner({ primaryPass }: AlertBannerProps) {
+  const status = evaluateAlertStatus(primaryPass)
+
+  return (
+    <section className={`alert-banner alert-stage-${status.stage}`}>
+      <h2>{status.title}</h2>
+      <p>{status.message}</p>
+    </section>
   )
 }
