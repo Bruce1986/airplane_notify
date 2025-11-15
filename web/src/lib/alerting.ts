@@ -34,7 +34,13 @@ export function evaluateAlertStatus(
     }
   }
 
-  const stage = determineStage(event, normalized)
+  const stage: AlertStage = determineStage(event, normalized)
+  if (stage === 'idle') {
+    // determineStage should only return 'idle' when no event is present; surface
+    // any regression immediately instead of masking it with a fallback message.
+    throw new Error('Illegal state: received an idle alert stage for an active event.')
+  }
+
   const { title, message } = describeStage(stage, event, normalized)
   return {
     stage,
@@ -53,14 +59,6 @@ function normalizeThresholds(thresholds: AlertThresholds): AlertThresholds {
   }
 }
 
-function determineStage(
-  event: null,
-  thresholds: AlertThresholds
-): 'idle'
-function determineStage(
-  event: PassEvent,
-  thresholds: AlertThresholds
-): Exclude<AlertStage, 'idle'>
 function determineStage(
   event: PassEvent | null,
   thresholds: AlertThresholds

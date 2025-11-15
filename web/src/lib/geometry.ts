@@ -14,6 +14,8 @@ const DEFAULT_NOISE_THRESHOLDS: NoiseThresholds = {
   medium: 2500
 }
 
+type GeodeticPoint = { latitude: number; longitude: number }
+
 function createFailedEvent(plane: PlaneState, dmin: number = Infinity): PassEvent {
   return {
     plane,
@@ -87,24 +89,27 @@ export function computePassEvent(site: ObservationSite, plane: PlaneState): Pass
   }
 }
 
+function hasGeodeticCoordinates(
+  state: StateVector
+): state is StateVector & GeodeticPoint {
+  return state.latitude != null && state.longitude != null
+}
+
 export function normalizeStateVector(
   site: ObservationSite,
   state: StateVector
 ): PlaneState | null {
-  const { latitude, longitude } = state
-  if (latitude == null || longitude == null) return null
+  if (!hasGeodeticCoordinates(state)) return null
   const altitude = state.geoAltitude ?? state.baroAltitude ?? null
   return {
     id: state.icao24,
     callsign: state.callsign?.trim() || null,
-    ...geodeticToEnu(site, { latitude, longitude }),
+    ...geodeticToEnu(site, state),
     v: state.velocity,
     trackRad: state.trueTrack == null ? null : toRadians(state.trueTrack),
     h: altitude
   }
 }
-
-type GeodeticPoint = { latitude: number; longitude: number }
 
 export function geodeticToEnu(site: ObservationSite, point: GeodeticPoint) {
   // NOTE: This uses an equirectangular projection that is sufficiently precise
