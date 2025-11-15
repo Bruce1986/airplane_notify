@@ -36,12 +36,9 @@ export function evaluateAlertStatus(
 
   const stage: AlertStage = determineStage(event, normalized)
   if (stage === 'idle') {
-    return {
-      stage,
-      title: '目前沒有預警中的航機',
-      message: '等待 OpenSky 更新。',
-      event
-    }
+    // determineStage should only return 'idle' when no event is present; surface
+    // any regression immediately instead of masking it with a fallback message.
+    throw new Error('Illegal state: received an idle alert stage for an active event.')
   }
 
   const { title, message } = describeStage(stage, event, normalized)
