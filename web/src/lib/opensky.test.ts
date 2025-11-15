@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { buildStatesUrl, parseOpenSkyStates, OpenSkyRateLimitError, __testables } from './opensky'
 import type { ObservationSite } from './types'
 
@@ -110,5 +110,31 @@ describe('OpenSkyRateLimitError', () => {
     expect(error.retryAfterMs).toBeGreaterThanOrEqual(60_000)
     expect(error.message).toContain('60 秒後')
     expect(error.name).toBe('OpenSkyRateLimitError')
+  })
+
+  it('derives retry delays from numeric Retry-After headers', () => {
+    const response = new Response(null, {
+      status: 429,
+      headers: { 'Retry-After': ' 120 ' }
+    })
+
+    const error = OpenSkyRateLimitError.fromResponse(response)
+    expect(error.retryAfterMs).toBe(120_000)
+  })
+
+  it('derives retry delays from HTTP date Retry-After headers', () => {
+    const now = Date.parse('2024-05-01T00:00:00Z')
+    const dateNowSpy = vi.spyOn(Date, 'now').mockReturnValue(now)
+    const retryAfter = new Date(now + 90_000).toUTCString()
+
+    const response = new Response(null, {
+      status: 429,
+      headers: { 'Retry-After': retryAfter }
+    })
+
+    const error = OpenSkyRateLimitError.fromResponse(response)
+    expect(error.retryAfterMs).toBe(90_000)
+
+    dateNowSpy.mockRestore()
   })
 })

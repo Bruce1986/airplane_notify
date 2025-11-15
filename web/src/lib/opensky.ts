@@ -33,6 +33,26 @@ export class OpenSkyRateLimitError extends Error {
     this.name = 'OpenSkyRateLimitError'
     this.retryAfterMs = enforcedDelay
   }
+
+  static fromResponse(response: Response): OpenSkyRateLimitError {
+    const retryAfterHeader =
+      typeof response.headers?.get === 'function' ? response.headers.get('Retry-After') : null
+
+    let retryAfterMs = Number.NaN
+    if (retryAfterHeader) {
+      const normalizedHeader = retryAfterHeader.trim()
+      if (/^\d+$/.test(normalizedHeader)) {
+        retryAfterMs = Number(normalizedHeader) * 1000
+      } else {
+        const parsedDate = Date.parse(normalizedHeader)
+        if (!Number.isNaN(parsedDate)) {
+          retryAfterMs = parsedDate - Date.now()
+        }
+      }
+    }
+
+    return new OpenSkyRateLimitError(retryAfterMs)
+  }
 }
 
 export function buildStatesUrl(site: ObservationSite): string {

@@ -48,20 +48,7 @@ export function useOpenSkyPolling({ site, intervalMs }: UseOpenSkyPollingOptions
         })
         if (!response.ok) {
           if (response.status === 429) {
-            const retryAfterHeader = typeof response.headers?.get === 'function' ? response.headers.get('Retry-After') : null
-            let retryAfterMs = Number.NaN
-            if (retryAfterHeader) {
-              const normalizedHeader = retryAfterHeader.trim()
-              if (/^\d+$/.test(normalizedHeader)) {
-                retryAfterMs = Number(normalizedHeader) * 1000
-              } else {
-                const parsedDate = Date.parse(normalizedHeader)
-                if (!Number.isNaN(parsedDate)) {
-                  retryAfterMs = parsedDate - Date.now()
-                }
-              }
-            }
-            throw new OpenSkyRateLimitError(retryAfterMs)
+            throw OpenSkyRateLimitError.fromResponse(response)
           }
           throw new Error(`OpenSky request failed: ${response.status}`)
         }
