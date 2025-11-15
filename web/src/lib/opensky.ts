@@ -3,6 +3,19 @@ import type { ObservationSite, StateVector } from './types'
 const METERS_PER_DEGREE_LAT = 111_320
 const MIN_LON_SCALE = 1e-6
 
+// For field indices, see OpenSky REST API documentation:
+// https://openskynetwork.github.io/opensky-api/rest.html#all-state-vectors
+const StateVectorIdx = {
+  ICAO24: 0,
+  CALLSIGN: 1,
+  LONGITUDE: 5,
+  LATITUDE: 6,
+  BARO_ALTITUDE: 7,
+  VELOCITY: 9,
+  TRUE_TRACK: 10,
+  GEO_ALTITUDE: 13
+} as const
+
 export interface OpenSkyStatesResponse {
   time: number
   states: unknown[] | null
@@ -41,26 +54,17 @@ export function parseOpenSkyStates(payload: unknown): StateVector[] {
 function normalizeStateRow(row: unknown): StateVector | null {
   if (!Array.isArray(row)) return null
 
-  // For field indices, see OpenSky REST API documentation:
-  // https://openskynetwork.github.io/opensky-api/rest.html#all-state-vectors
-  const [
-    icao24,
-    callsign,
-    ,
-    ,
-    ,
-    longitude,
-    latitude,
-    baroAltitude,
-    ,
-    velocity,
-    trueTrack,
-    ,
-    ,
-    geoAltitude
-  ] = row as (string | number | null)[]
-
+  const typedRow = row as (string | number | null)[]
+  const icao24 = typedRow[StateVectorIdx.ICAO24]
   if (typeof icao24 !== 'string') return null
+
+  const callsign = typedRow[StateVectorIdx.CALLSIGN]
+  const latitude = typedRow[StateVectorIdx.LATITUDE]
+  const longitude = typedRow[StateVectorIdx.LONGITUDE]
+  const geoAltitude = typedRow[StateVectorIdx.GEO_ALTITUDE]
+  const baroAltitude = typedRow[StateVectorIdx.BARO_ALTITUDE]
+  const velocity = typedRow[StateVectorIdx.VELOCITY]
+  const trueTrack = typedRow[StateVectorIdx.TRUE_TRACK]
 
   return {
     icao24,

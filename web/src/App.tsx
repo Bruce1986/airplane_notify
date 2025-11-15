@@ -1,11 +1,9 @@
-import { startTransition, useEffect, useState } from 'react'
 import './App.css'
-import { processPassEvents } from './lib/pass-processing'
 import { evaluateAlertStatus } from './lib/alerting'
 import { formatSeconds } from './lib/formatters'
-import { buildStatesUrl, parseOpenSkyStates } from './lib/opensky'
-import { observationSite, POLL_INTERVAL_MS } from './site-config'
 import type { PassEvent } from './lib/types'
+import { useOpenSkyPolling } from './hooks/useOpenSkyPolling'
+import { observationSite, POLL_INTERVAL_MS } from './site-config'
 
 function formatDistance(value: number): string {
   return `${value.toFixed(0)} m`
@@ -45,55 +43,7 @@ export function PassItem({ event, isPrimary }: PassItemProps) {
 }
 
 export default function App() {
-  const [passEvents, setPassEvents] = useState<PassEvent[]>([])
-
-  useEffect(() => {
-    const controller = new AbortController()
-    const requestUrl = buildStatesUrl(observationSite)
-    let timerId: ReturnType<typeof window.setTimeout> | null = null
-
-    const pollOpenSky = async () => {
-      try {
-        const response = await fetch(requestUrl, {
-          cache: 'no-store',
-          signal: controller.signal
-        })
-        if (!response.ok) {
-          throw new Error(`OpenSky request failed: ${response.status}`)
-        }
-
-        const data = await response.json()
-        const stateVectors = parseOpenSkyStates(data)
-        const passes = processPassEvents(observationSite, stateVectors)
-
-        if (!controller.signal.aborted) {
-          startTransition(() => {
-            setPassEvents(passes)
-          })
-        }
-      } catch (error) {
-        if (!controller.signal.aborted) {
-          console.error('Failed to load OpenSky states', error)
-          startTransition(() => {
-            setPassEvents([])
-          })
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          timerId = window.setTimeout(pollOpenSky, POLL_INTERVAL_MS)
-        }
-      }
-    }
-
-    pollOpenSky()
-
-    return () => {
-      controller.abort()
-      if (timerId !== null) {
-        window.clearTimeout(timerId)
-      }
-    }
-  }, [])
+  const livePassEvents = useOpenSkyPolling({ site: observationSite, intervalMs: POLL_INTERVAL_MS })
 
   return (
     <div className="app">
@@ -105,14 +55,14 @@ export default function App() {
         </p>
       </header>
 
-      <AlertBanner primaryPass={passEvents[0] ?? null} />
+      <AlertBanner primaryPass={livePassEvents[0] ?? null} />
 
       <div className="dashboard-grid">
         <section className="card">
           <h2>即將進入半徑的航機</h2>
           <ul className="pass-list">
-            {passEvents.length === 0 && <li>目前沒有預警中的航機。</li>}
-            {passEvents.map((event, index) => (
+            {livePassEvents.length === 0 && <li>目前沒有預警中的航機。</li>}
+            {livePassEvents.map((event, index) => (
               <PassItem key={event.plane.id} event={event} isPrimary={index === 0} />
             ))}
           </ul>
