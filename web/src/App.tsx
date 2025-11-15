@@ -23,7 +23,7 @@ export function PassItem({ event, isPrimary }: PassItemProps) {
   const isActive = event.eta <= 0
   const etaLabel = isActive ? '通過中' : `倒數：${formatSeconds(event.eta)}`
   const durationLabel = isActive
-    ? `剩餘：${formatSeconds(event.duration)}`
+    ? `剩餘：${formatSeconds(event.duration + event.eta)}`
     : `預估通過：${formatSeconds(event.duration)}`
 
   const classNames = ['pass-item']

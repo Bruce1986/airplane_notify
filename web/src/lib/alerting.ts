@@ -26,7 +26,7 @@ export function evaluateAlertStatus(
 ): AlertStatus {
   const normalized = normalizeThresholds(thresholds)
   const stage = determineStage(event, normalized)
-  if (!event || stage === 'idle') {
+  if (!event) {
     return {
       stage: 'idle',
       title: '目前沒有預警中的航機',

@@ -48,6 +48,6 @@ describe('PassItem', () => {
     expect(item).toHaveClass('pass-item', 'pass-item--active')
     expect(item).not.toHaveClass('pass-item--primary')
     expect(screen.getByText('通過中')).toBeInTheDocument()
-    expect(screen.getByText('剩餘：75 秒')).toBeInTheDocument()
+    expect(screen.getByText('剩餘：72 秒')).toBeInTheDocument()
   })
 })
